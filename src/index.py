@@ -78,12 +78,3 @@ async def read_item(request: Request, id: str):
 @app.get("/api")
 def read_root():
     return {"Hello": "World"}
-
-
-def start():
-    """Launched with `poetry run start` at root level"""
-    uvicorn.run("index:app", host="127.0.0.1", port=3000, reload=True)
-
-
-if __name__ == "__main__":
-    start()
