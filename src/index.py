@@ -56,7 +56,7 @@ class Leg(BaseModel):
     duration: float
     steps: list
     distance: float
-    summary: list[str] | str
+    summary: Union[list[str], str]
 
     @validator('summary')
     def str_to_list(cls, v):
@@ -79,7 +79,6 @@ class DadosViagemView(BaseModel):
     distancia: Optional[str] = None
     consumo_total_de_combustivel: Optional[str] = None
     vias_da_rota: Optional[list[str]] = None
-
 
 
 async def get_route(viagem: Viagem) -> Route:
