@@ -107,10 +107,10 @@ async def get_route(viagem: Viagem) -> Route:
     return route
 
 
-def format_distance(route: Route) -> str:
+def format_distance(distancia: float) -> str:
     distance: str = ""
     try:
-        distance_float: float = route.distance / 1000
+        distance_float: float = distancia / 1000
         distance = locale.format_string(format_decimal, distance_float, grouping=True, monetary=False)
     except TypeError:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno de tipo.")
@@ -134,7 +134,7 @@ def get_consumo_total_de_combustivel(route: Route, km_por_litro_do_veiculo: floa
 async def distance(request: Request, viagem: Viagem):
     route: Route = await get_route(viagem=viagem)
     vias_da_rota: list = route.legs[0].summary
-    distance: str = format_distance(route)
+    distance: str = format_distance(route.distance)
     consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem.km_litro)
     return templates.TemplateResponse("item.html", {"request": request, "distance": distance,
                                                     'vias_da_rota': vias_da_rota, 'consumo_total_de_combustivel': consumo_total_de_combustivel_str})
@@ -150,11 +150,28 @@ async def home_view_get(request: Request):
 async def read_item(request: Request, origem_longitude: float = Form(...), origem_latitude: float = Form(...),
                     destino_longitude: float = Form(...), destino_latitude: float = Form(...),
                     km_litro: float = Form(...), ida_e_volta: bool = Form(...)):
-    viagem = Viagem(origem_longitude=origem_longitude, origem_latitude=origem_latitude, destino_longitude=destino_longitude,
+    viagem_ida = Viagem(origem_longitude=origem_longitude, origem_latitude=origem_latitude, destino_longitude=destino_longitude,
                     destino_latitude=destino_latitude, km_litro=km_litro, ida_e_volta=ida_e_volta)
-    route: Route = await get_route(viagem=viagem)
+    route: Route = await get_route(viagem=viagem_ida)
     vias_da_rota: list = route.legs[0].summary
-    distance: str = format_distance(route)
-    consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem.km_litro)
+    distance: str = format_distance(route.distance)
+    consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem_ida.km_litro)
     dados_viajem_view = DadosViagemView(distancia=distance, consumo_total_de_combustivel=consumo_total_de_combustivel_str, vias_da_rota=vias_da_rota)
+
+    if ida_e_volta:
+        viagem_volta = Viagem(origem_longitude=destino_longitude, origem_latitude=destino_latitude,
+                            destino_longitude=origem_longitude,
+                            destino_latitude=origem_latitude, km_litro=km_litro, ida_e_volta=ida_e_volta)
+        route_volta: Route = await get_route(viagem=viagem_volta)
+        vias_da_rota_volta: list = route_volta.legs[0].summary
+        distance_volta: str = format_distance(route_volta.distance)
+        consumo_total_de_combustivel_str_volta, consumo_total_de_combustivel_volta = get_consumo_total_de_combustivel(route_volta,
+                                                                                                          viagem_volta.km_litro)
+        dados_viajem_view.distancia = format_distance(route.distance + route_volta.distance)
+        dados_viajem_view.vias_da_rota = dados_viajem_view.vias_da_rota + vias_da_rota_volta
+        dados_viagem_ida_volta = set(dados_viajem_view.vias_da_rota)
+        dados_viagem_ida_volta = list(dados_viagem_ida_volta)
+        dados_viajem_view.vias_da_rota = dados_viagem_ida_volta
+        dados_viajem_view.consumo_total_de_combustivel = round(consumo_total_de_combustivel_volta + consumo_total_de_combustivel, 2)
+
     return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})
