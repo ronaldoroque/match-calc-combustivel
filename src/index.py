@@ -1,12 +1,12 @@
 import locale
 from http import HTTPStatus
-from typing import Optional, Union, Tuple
+from typing import Optional, Union, Tuple, Annotated
 
 from requests import get
 from orjson import orjson
 
 import uvicorn
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Form
 from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse, ORJSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -75,6 +75,13 @@ class Route(BaseModel):
     geometry: dict[str, Union[list[list[float]], str]]
 
 
+class DadosViagemView(BaseModel):
+    distancia: Optional[str] = None
+    consumo_total_de_combustivel: Optional[str] = None
+    vias_da_rota: Optional[list[str]] = None
+
+
+
 async def get_route(viagem: Viagem) -> Route:
     endpoint_mapbox = f"https://api.mapbox.com/directions/v5/mapbox/driving"
     params = {
@@ -133,10 +140,20 @@ async def distance(request: Request, viagem: Viagem):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def read_item(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+async def home_view_get(request: Request):
+    dados_viajem_view = DadosViagemView()
+    return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})
 
 
-@app.get("/api")
-def read_root():
-    return {"Hello": "World"}
+@app.post("/", response_class=HTMLResponse)
+async def read_item(request: Request, origem_longitude: float = Form(...), origem_latitude: float = Form(...),
+                    destino_longitude: float = Form(...), destino_latitude: float = Form(...),
+                    km_litro: float = Form(...), ida_e_volta: bool = Form(...)):
+    viagem = Viagem(origem_longitude=origem_longitude, origem_latitude=origem_latitude, destino_longitude=destino_longitude,
+                    destino_latitude=destino_latitude, km_litro=km_litro, ida_e_volta=ida_e_volta)
+    route: Route = await get_route(viagem=viagem)
+    vias_da_rota: list = route.legs[0].summary
+    distance: str = format_distance(route)
+    consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem.km_litro)
+    dados_viajem_view = DadosViagemView(distancia=distance, consumo_total_de_combustivel=consumo_total_de_combustivel_str, vias_da_rota=vias_da_rota)
+    return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})

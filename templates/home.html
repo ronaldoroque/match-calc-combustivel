@@ -137,27 +137,33 @@
                         <img src="https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"
                         width="100%">
                         <div class="card-body">
-                            <p class="card-text">
-                                Calcula a quantidade de combustível necessária para percorrer uma determinada distância
-                                entre dois pontos, levando em consideração o consumo estimado do veículo.
-                            </p>
+                            {% if not dados_viajem.distancia %}
+                                <p class="card-text">
+                                    Calcula a quantidade de combustível necessária para percorrer uma determinada distância
+                                    entre dois pontos, levando em consideração o consumo estimado do veículo.
+                                </p>
+                            {% else %}
+                                <p class="card-text">Distância: {{ dados_viajem.distancia }} Km</p>
+                                <p class="card-text">Principais vias da rota: {{ dados_viajem.vias_da_rota|join(", ") }}</p>
+                                <p class="card-text">Litros necessários: {{ dados_viajem.consumo_total_de_combustivel }} litros</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-12 col-md-8">
                     <h4 class="mb-3">Informe os dados da viagem</h4>
-                    <form class="needs-validation">
+                    <form class="needs-validation" method="post" action="#" enctype="application/x-www-form-urlencoded">
                         <div class="row g-1">
                             <div class="col-md-12 col-lg-4">
                                 <label for="origemLatitude" class="form-label">Coordenadas da origem:</label>
                             </div>
                             <div class="col-md-6 col-lg-4">
-                                <input type="text" class="form-control" id="origemLatitude"
+                                <input type="text" class="form-control" id="origemLatitude" name="origem_latitude"
                                        placeholder="Latitude" value="" required>
                                 <div class="invalid-feedback">Insira a coordenada.</div>
                             </div>
                             <div class="col-md-6 col-lg-4">
-                                <input type="text" class="form-control" id="origemLongitude"
+                                <input type="text" class="form-control" id="origemLongitude" name="origem_longitude"
                                        placeholder="Longitude" value="" required>
                                 <div class="invalid-feedback">Insira a coordenada.</div>
                             </div>
@@ -168,12 +174,12 @@
                                 <label for="destinoLatitude" class="form-label">Coordenadas do destino:</label>
                             </div>
                             <div class="col-md-6 col-lg-4">
-                                <input type="text" class="form-control" id="destinoLatitude"
+                                <input type="text" class="form-control" id="destinoLatitude" name="destino_latitude"
                                        placeholder="Latitude" value="" required>
                                 <div class="invalid-feedback">Insira a coordenada.</div>
                             </div>
                             <div class="col-md-6 col-lg-4">
-                                <input type="text" class="form-control" id="destinoLongitude"
+                                <input type="text" class="form-control" id="destinoLongitude" name="destino_longitude"
                                        placeholder="Longitude" value="" required>
                                 <div class="invalid-feedback">Insira a coordenada.</div>
                             </div>
@@ -181,16 +187,18 @@
 
                         <div class="row g-5 pt-3">
                             <div class="col-sm-12 col-md-6">
-                                <label for="consumo" class="form-label">Média de consumo do veículo:</label>
+                                <label for="km_litro" class="form-label">Média de consumo do veículo:</label>
                                 <div class="input-group has-validation">
-                                    <input type="number" class="form-control" id="consumo" placeholder=""
+                                    <input type="number" class="form-control" id="km_litro" name="km_litro" placeholder=""
                                            required>
                                     <span class="input-group-text">km/litro</span>
                                     <div class="invalid-feedback">Insira da média de consumo.</div>
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-4 form-check pt-md-5 mx-4">
-                                <input class="form-check-input" type="checkbox" value="" id="idaEVolta">
+                                <input type="hidden" id="idaEVoltaHidden" value="false" name="ida_e_volta">
+                                <input class="form-check-input" type="checkbox" value="true" id="idaEVolta" name="ida_e_volta_check"
+                                       onclick="checkToHidden(this)">
                                 <label for="idaEVolta" class="form-label">Calcular ida e volta</label>
                             </div>
                         </div>
@@ -212,11 +220,16 @@
 
 <footer class="text-body-secondary py-5">
     <div class="container">
-        <p class="mb-1">Projeto desenvolvido no âmbito da Formação Match! - turma julho/2023.</p>
-        <p class="mb-1">Para ver o código fonte do projeto, acesse o repositório do Github.</p>
+        <p class="mb-1">Projeto desenvolvido no âmbito da <a href="https://match.mastertech.com.br">Formação Match!</a> - turma julho/2023.</p>
+        <p class="mb-1">Para ver o código fonte do projeto, acesse o <a href="https://github.com/ronaldoroque/match-calc-combustivel">repositório do Github</a>.</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
-
+<script>
+    function checkToHidden (check) {
+        hiddenInput = document.getElementById("idaEVoltaHidden")
+        hiddenInput.value = check.checked
+    }
+</script>
 </body>
 </html>
