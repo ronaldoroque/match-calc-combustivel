@@ -1,7 +1,7 @@
 import locale
 from http import HTTPStatus
 from typing import Optional
-
+from src import routes
 from requests import get
 from orjson import orjson
 
@@ -35,7 +35,7 @@ def create_app() -> FastAPI:
 app = create_app()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-
+app.include_router(src.routes)
 
 class Viagem(BaseModel):
     origem_longitude: float
@@ -80,7 +80,10 @@ async def distance(request: Request, viagem: Viagem):
 async def read_item(request: Request, id: str):
     return templates.TemplateResponse("item.html", {"request": request, "id": id})
 
+@app.get('/', response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse('index.html', {'request': request})
 
 @app.get("/api")
-def read_root():
-    return {"Hello": "World"}
+def read_root(request: Request):
+    return templates.TemplateResponse('item.html' ,{"Hello": "World"})
