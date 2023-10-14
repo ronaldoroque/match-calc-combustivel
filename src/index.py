@@ -1,6 +1,6 @@
 import locale
 from http import HTTPStatus
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 from requests import get
 from orjson import orjson
@@ -16,6 +16,7 @@ from pydantic import BaseModel, validator
 from src.config import get_settings as settings
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+format_decimal = "%.{0:d}f".format(2)
 
 
 def create_app() -> FastAPI:
@@ -98,24 +99,37 @@ async def get_route(viagem: Viagem) -> Route:
     return route
 
 
-@app.post("/distance", response_class=HTMLResponse)
-async def distance(request: Request, viagem: Viagem):
-    route: Route = await get_route(viagem=viagem)
-    vias_da_rota: list = route.legs[0].summary
+def format_distance(route: Route) -> str:
     distance: str = ""
-    consumo_do_veiculo: float = 0.0
     try:
         distance_float: float = route.distance / 1000
-        format_decimal = "%.{0:d}f".format(2)
         distance = locale.format_string(format_decimal, distance_float, grouping=True, monetary=False)
-        consumo_do_veiculo = distance_float / viagem.km_litro
-        consumo_do_veiculo_str: str = locale.format_string(format_decimal, consumo_do_veiculo, grouping=True, monetary=False)
     except TypeError:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno de tipo.")
     except AttributeError:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno na resposta da API")
+    return distance
+
+
+def get_consumo_total_de_combustivel(route: Route, km_por_litro_do_veiculo: float) -> tuple[str, float]:
+    try:
+        consumo_total_de_combustivel: float = (route.distance / 1000) / km_por_litro_do_veiculo
+        consumo_do_veiculo_str: str = locale.format_string(format_decimal, consumo_total_de_combustivel, grouping=True, monetary=False)
+        return consumo_do_veiculo_str, round(consumo_total_de_combustivel, 2)
+    except TypeError:
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno de tipo.")
+    except AttributeError:
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno na resposta da API")
+
+
+@app.post("/distance", response_class=HTMLResponse)
+async def distance(request: Request, viagem: Viagem):
+    route: Route = await get_route(viagem=viagem)
+    vias_da_rota: list = route.legs[0].summary
+    distance: str = format_distance(route)
+    consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem.km_litro)
     return templates.TemplateResponse("item.html", {"request": request, "distance": distance,
-                                                    'vias_da_rota': vias_da_rota, 'consumo_do_veiculo': consumo_do_veiculo_str})
+                                                    'vias_da_rota': vias_da_rota, 'consumo_total_de_combustivel': consumo_total_de_combustivel_str})
 
 
 @app.get("/", response_class=HTMLResponse)
