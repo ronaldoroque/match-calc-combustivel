@@ -1,5 +1,7 @@
 import locale
 from http import HTTPStatus
+from typing import Optional
+from src import routes
 from typing import Optional, Union, Tuple, Annotated
 
 from requests import get
@@ -29,13 +31,13 @@ def create_app() -> FastAPI:
     )
 
     api_version = "/api/v1"
-    # app.mount("/static", StaticFiles(directory="static"), name="static")  # TODO: liberar quando a pasta for encontrada no ambiente de desenvolvimento da equipe.
+    app.mount("/static", StaticFiles(directory="static"), name="static")
     return app
 
 
 app = create_app()
 templates = Jinja2Templates(directory="templates")
-
+app.include_router(src.routes)
 
 class Viagem(BaseModel):
     origem_longitude: float
