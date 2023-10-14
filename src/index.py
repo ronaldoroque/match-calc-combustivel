@@ -76,9 +76,9 @@ async def distance(request: Request, viagem: Viagem):
                                                     'endereco': endereco, 'consumo_do_veiculo': consumo_do_veiculo})
 
 
-@app.get("/items/{id}", response_class=HTMLResponse)
-async def read_item(request: Request, id: str):
-    return templates.TemplateResponse("item.html", {"request": request, "id": id})
+@app.get("/", response_class=HTMLResponse)
+async def read_item(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
 
 
 @app.get("/api")
