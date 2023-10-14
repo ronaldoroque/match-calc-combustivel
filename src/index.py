@@ -1,7 +1,7 @@
 import locale
 from http import HTTPStatus
 from typing import Optional
-from src import routes
+
 from typing import Optional, Union, Tuple, Annotated
 
 from requests import get
@@ -37,7 +37,7 @@ def create_app() -> FastAPI:
 
 app = create_app()
 templates = Jinja2Templates(directory="templates")
-app.include_router(src.routes)
+
 
 class Viagem(BaseModel):
     origem_longitude: float
