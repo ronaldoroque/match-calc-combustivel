@@ -1,24 +1,27 @@
 import locale
 from http import HTTPStatus
 from typing import Optional
-from src import routes
+
+from typing import Optional, Union, Tuple, Annotated
+
 from requests import get
 from orjson import orjson
 
 import uvicorn
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Form
 from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse, ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from src.config import get_settings as settings
+
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+format_decimal = "%.{0:d}f".format(2)
 
 
 def create_app() -> FastAPI:
-
     app = FastAPI(
         debug=settings().debug,
         title=settings().project_name,
@@ -33,9 +36,8 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-app.include_router(src.routes)
+
 
 class Viagem(BaseModel):
     origem_longitude: float
@@ -49,8 +51,39 @@ class Viagem(BaseModel):
         return f"{self.origem_longitude},{self.origem_latitude};{self.destino_longitude},{self.destino_latitude}"
 
 
-@app.post("/distance", response_class=HTMLResponse)
-async def distance(request: Request, viagem: Viagem):
+class Leg(BaseModel):
+    via_waypoints: list
+    admins: list
+    weight: float
+    duration: float
+    steps: list
+    distance: float
+    summary: Union[list[str], str]
+
+    @validator('summary')
+    def str_to_list(cls, v):
+        if isinstance(v, str):
+            v = v.split(", ")
+            return v
+        return v
+
+
+class Route(BaseModel):
+    weight_name: str
+    weight: float
+    duration: float
+    distance: float
+    legs: list[Leg]
+    geometry: dict[str, Union[list[list[float]], str]]
+
+
+class DadosViagemView(BaseModel):
+    distancia: Optional[str] = None
+    consumo_total_de_combustivel: Optional[str] = None
+    vias_da_rota: Optional[list[str]] = None
+
+
+async def get_route(viagem: Viagem) -> Route:
     endpoint_mapbox = f"https://api.mapbox.com/directions/v5/mapbox/driving"
     params = {
         'geometries': "geojson",
@@ -58,32 +91,70 @@ async def distance(request: Request, viagem: Viagem):
     }
     url = f"{endpoint_mapbox}/{viagem.coodernadas()}"
     mapbox_return = get(url=url, params=params)
-    response = orjson.loads(mapbox_return.text)
-    distance = None
-    endereco = (response['routes'][0]['legs'][0]['summary'])
-    consumo_do_veiculo = None
+    response = mapbox_return.json()
     try:
-        distance_float: float = (response['routes'][0]['distance'])/1000
-        formato_decimal = "%.{0:d}f".format(2)
-        distance = locale.format_string(formato_decimal, distance_float, grouping=True, monetary=False)
-        consumo_do_veiculo = distance_float / viagem.km_litro
-        consumo_do_veiculo = round(consumo_do_veiculo)
+        endereco = (response['routes'][0]['legs'][0]['summary'])
+    except KeyError as erro:
+        if max(viagem.origem_longitude, viagem.destino_longitude) > 90.0 or \
+                min(viagem.origem_longitude, viagem.destino_longitude) < -90.0:
+            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                                detail="Verifique se os valores de Longitude foram digitados corretamente.")
+        elif max(viagem.origem_latitude, viagem.destino_latitude) > 180.0 or \
+                min(viagem.origem_latitude, viagem.destino_latitude) < -180.0:
+            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
+                                detail="Verifique se os valores de Latitude foram digitados corretamente.")
+    route = Route(**response['routes'][0])
+    return route
+
+
+def format_distance(route: Route) -> str:
+    distance: str = ""
+    try:
+        distance_float: float = route.distance / 1000
+        distance = locale.format_string(format_decimal, distance_float, grouping=True, monetary=False)
     except TypeError:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno de tipo.")
     except AttributeError:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno na resposta da API")
+    return distance
+
+
+def get_consumo_total_de_combustivel(route: Route, km_por_litro_do_veiculo: float) -> tuple[str, float]:
+    try:
+        consumo_total_de_combustivel: float = (route.distance / 1000) / km_por_litro_do_veiculo
+        consumo_do_veiculo_str: str = locale.format_string(format_decimal, consumo_total_de_combustivel, grouping=True, monetary=False)
+        return consumo_do_veiculo_str, round(consumo_total_de_combustivel, 2)
+    except TypeError:
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno de tipo.")
+    except AttributeError:
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno na resposta da API")
+
+
+@app.post("/distance", response_class=HTMLResponse)
+async def distance(request: Request, viagem: Viagem):
+    route: Route = await get_route(viagem=viagem)
+    vias_da_rota: list = route.legs[0].summary
+    distance: str = format_distance(route)
+    consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem.km_litro)
     return templates.TemplateResponse("item.html", {"request": request, "distance": distance,
-                                                    'endereco': endereco, 'consumo_do_veiculo': consumo_do_veiculo})
+                                                    'vias_da_rota': vias_da_rota, 'consumo_total_de_combustivel': consumo_total_de_combustivel_str})
 
 
-@app.get("/items/{id}", response_class=HTMLResponse)
-async def read_item(request: Request, id: str):
-    return templates.TemplateResponse("item.html", {"request": request, "id": id})
+@app.get("/", response_class=HTMLResponse)
+async def home_view_get(request: Request):
+    dados_viajem_view = DadosViagemView()
+    return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})
 
-@app.get('/', response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse('index.html', {'request': request})
 
-@app.get("/api")
-def read_root(request: Request):
-    return templates.TemplateResponse('item.html' ,{"Hello": "World"})
+@app.post("/", response_class=HTMLResponse)
+async def read_item(request: Request, origem_longitude: float = Form(...), origem_latitude: float = Form(...),
+                    destino_longitude: float = Form(...), destino_latitude: float = Form(...),
+                    km_litro: float = Form(...), ida_e_volta: bool = Form(...)):
+    viagem = Viagem(origem_longitude=origem_longitude, origem_latitude=origem_latitude, destino_longitude=destino_longitude,
+                    destino_latitude=destino_latitude, km_litro=km_litro, ida_e_volta=ida_e_volta)
+    route: Route = await get_route(viagem=viagem)
+    vias_da_rota: list = route.legs[0].summary
+    distance: str = format_distance(route)
+    consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem.km_litro)
+    dados_viajem_view = DadosViagemView(distancia=distance, consumo_total_de_combustivel=consumo_total_de_combustivel_str, vias_da_rota=vias_da_rota)
+    return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})
