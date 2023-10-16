@@ -2,21 +2,24 @@
 import {defineComponent} from 'vue'
 
 export default defineComponent({
-  name: "Header"
+  name: "Header",
+  data() {
+    return {
+      expanded: false,
+    }
+  }
 })
 </script>
 
 <template>
   <b-navbar toggleable type="dark" variant="dark">
-    <b-navbar-brand href="#">Calculadora de Combustível</b-navbar-brand>
+    <b-navbar-brand href="#" class="mr-auto">Calculadora de Combustível</b-navbar-brand>
+    <button v-if="expanded" type="button" class="btn btn-secondary float-end" size="sm" @click="expanded=!expanded">
+            Sobre o Projeto <b-icon icon="chevron-bar-up" class="ml-2"></b-icon></button>
+    <button v-else type="button" class="btn btn-secondary float-end" size="sm" @click="expanded=!expanded">
+            Sobre o Projeto <b-icon icon="chevron-bar-down" class="ml-2"></b-icon></button>
 
-    <b-navbar-toggle target="navbar-toggle-collapse" class="ml-auto">
-      <template #default="{ expanded }">
-        <b-button variant="secondary" class="ml-auto">Sobre o Projeto</b-button>
-      </template>
-    </b-navbar-toggle>
-
-    <b-collapse id="navbar-toggle-collapse" is-nav>
+    <b-collapse id="navbar-toggle-collapse" v-model="expanded" is-nav>
       <div class="container text-white">
         <div class="row">
           <div class="col-sm-8 col-md-7 py-4">
