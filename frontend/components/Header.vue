@@ -13,10 +13,10 @@ export default defineComponent({
 
 <template>
   <b-navbar toggleable type="dark" variant="dark">
-    <b-navbar-brand href="#" class="mr-auto">Calculadora de Combustível</b-navbar-brand>
-    <button v-if="expanded" type="button" class="btn btn-secondary float-end" size="sm" @click="expanded=!expanded">
+    <b-navbar-brand href="#">Calculadora de Combustível</b-navbar-brand>
+    <button v-if="expanded" type="button" class="btn btn-secondary float-end ml-auto py-0 py-md-1" size="sm" @click="expanded=!expanded">
             Sobre o Projeto <b-icon icon="chevron-bar-up" class="ml-2"></b-icon></button>
-    <button v-else type="button" class="btn btn-secondary float-end" size="sm" @click="expanded=!expanded">
+    <button v-else type="button" class="btn btn-secondary float-end ml-auto py-0 py-md-1" size="sm" @click="expanded=!expanded">
             Sobre o Projeto <b-icon icon="chevron-bar-down" class="ml-2"></b-icon></button>
 
     <b-collapse id="navbar-toggle-collapse" v-model="expanded" is-nav>
