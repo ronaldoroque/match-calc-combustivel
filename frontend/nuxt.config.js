@@ -79,6 +79,11 @@ export default {
   build: {
   },
 
+  // https://v2.nuxt.com/deployments/github-pages/
+  router: {
+    base: '/match-calc-combustivel/'
+  },
+
   // https://stackoverflow.com/questions/54380719/set-path-to-output-folder-in-nuxt
   generate: {
     dir: '../docs'
