@@ -1,24 +1,12 @@
-import locale
-from http import HTTPStatus
-from typing import Optional
-
-from typing import Optional, Union, Tuple, Annotated
-
-from requests import get
-from orjson import orjson
-
-import uvicorn
-from fastapi import FastAPI, Request, HTTPException, Form
+from fastapi import FastAPI
 from fastapi.datastructures import Default
-from fastapi.responses import HTMLResponse, ORJSONResponse
+from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel, validator
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import get_settings as settings
-
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-format_decimal = "%.{0:d}f".format(2)
+from src.controller import router
 
 
 def create_app() -> FastAPI:
@@ -29,149 +17,20 @@ def create_app() -> FastAPI:
         version=settings().version,
         default_response_class=Default(ORJSONResponse)
     )
+    app.add_middleware(
+        TrustedHostMiddleware, allowed_hosts=settings().allowed_host.split()
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings().allowed_origins.split(),
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-    api_version = "/api/v1"
     app.mount("/static", StaticFiles(directory="static"), name="static")
+    app.include_router(router=router)
     return app
 
 
 app = create_app()
-templates = Jinja2Templates(directory="templates")
-
-
-class Viagem(BaseModel):
-    origem_longitude: float
-    origem_latitude: float
-    destino_longitude: float
-    destino_latitude: float
-    ida_e_volta: Optional[bool] = True
-    km_litro: float
-
-    def coodernadas(self):
-        return f"{self.origem_longitude},{self.origem_latitude};{self.destino_longitude},{self.destino_latitude}"
-
-
-class Leg(BaseModel):
-    via_waypoints: list
-    admins: list
-    weight: float
-    duration: float
-    steps: list
-    distance: float
-    summary: Union[list[str], str]
-
-    @validator('summary')
-    def str_to_list(cls, v):
-        if isinstance(v, str):
-            v = v.split(", ")
-            return v
-        return v
-
-
-class Route(BaseModel):
-    weight_name: str
-    weight: float
-    duration: float
-    distance: float
-    legs: list[Leg]
-    geometry: dict[str, Union[list[list[float]], str]]
-
-
-class DadosViagemView(BaseModel):
-    distancia: Optional[str] = None
-    consumo_total_de_combustivel: Optional[str] = None
-    vias_da_rota: Optional[list[str]] = None
-
-
-async def get_route(viagem: Viagem) -> Route:
-    endpoint_mapbox = f"https://api.mapbox.com/directions/v5/mapbox/driving"
-    params = {
-        'geometries': "geojson",
-        'access_token': settings().mapbox_access_token,
-    }
-    url = f"{endpoint_mapbox}/{viagem.coodernadas()}"
-    mapbox_return = get(url=url, params=params)
-    response = mapbox_return.json()
-    try:
-        endereco = (response['routes'][0]['legs'][0]['summary'])
-    except KeyError as erro:
-        if max(viagem.origem_longitude, viagem.destino_longitude) > 90.0 or \
-                min(viagem.origem_longitude, viagem.destino_longitude) < -90.0:
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
-                                detail="Verifique se os valores de Longitude foram digitados corretamente.")
-        elif max(viagem.origem_latitude, viagem.destino_latitude) > 180.0 or \
-                min(viagem.origem_latitude, viagem.destino_latitude) < -180.0:
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
-                                detail="Verifique se os valores de Latitude foram digitados corretamente.")
-    route = Route(**response['routes'][0])
-    return route
-
-
-def format_distance(distancia: float) -> str:
-    distance: str = ""
-    try:
-        distance_float: float = distancia / 1000
-        distance = locale.format_string(format_decimal, distance_float, grouping=True, monetary=False)
-    except TypeError:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno de tipo.")
-    except AttributeError:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno na resposta da API")
-    return distance
-
-
-def get_consumo_total_de_combustivel(route: Route, km_por_litro_do_veiculo: float) -> tuple[str, float]:
-    try:
-        consumo_total_de_combustivel: float = (route.distance / 1000) / km_por_litro_do_veiculo
-        consumo_do_veiculo_str: str = locale.format_string(format_decimal, consumo_total_de_combustivel, grouping=True, monetary=False)
-        return consumo_do_veiculo_str, round(consumo_total_de_combustivel, 2)
-    except TypeError:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno de tipo.")
-    except AttributeError:
-        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="Erro interno na resposta da API")
-
-
-@app.post("/distance", response_class=HTMLResponse)
-async def distance(request: Request, viagem: Viagem):
-    route: Route = await get_route(viagem=viagem)
-    vias_da_rota: list = route.legs[0].summary
-    distance: str = format_distance(route.distance)
-    consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem.km_litro)
-    return templates.TemplateResponse("item.html", {"request": request, "distance": distance,
-                                                    'vias_da_rota': vias_da_rota, 'consumo_total_de_combustivel': consumo_total_de_combustivel_str})
-
-
-@app.get("/", response_class=HTMLResponse)
-async def home_view_get(request: Request):
-    dados_viajem_view = DadosViagemView()
-    return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})
-
-
-@app.post("/", response_class=HTMLResponse)
-async def read_item(request: Request, origem_longitude: float = Form(...), origem_latitude: float = Form(...),
-                    destino_longitude: float = Form(...), destino_latitude: float = Form(...),
-                    km_litro: float = Form(...), ida_e_volta: bool = Form(...)):
-    viagem_ida = Viagem(origem_longitude=origem_longitude, origem_latitude=origem_latitude, destino_longitude=destino_longitude,
-                    destino_latitude=destino_latitude, km_litro=km_litro, ida_e_volta=ida_e_volta)
-    route: Route = await get_route(viagem=viagem_ida)
-    vias_da_rota: list = route.legs[0].summary
-    distance: str = format_distance(route.distance)
-    consumo_total_de_combustivel_str, consumo_total_de_combustivel = get_consumo_total_de_combustivel(route, viagem_ida.km_litro)
-    dados_viajem_view = DadosViagemView(distancia=distance, consumo_total_de_combustivel=consumo_total_de_combustivel_str, vias_da_rota=vias_da_rota)
-
-    if ida_e_volta:
-        viagem_volta = Viagem(origem_longitude=destino_longitude, origem_latitude=destino_latitude,
-                            destino_longitude=origem_longitude,
-                            destino_latitude=origem_latitude, km_litro=km_litro, ida_e_volta=ida_e_volta)
-        route_volta: Route = await get_route(viagem=viagem_volta)
-        vias_da_rota_volta: list = route_volta.legs[0].summary
-        distance_volta: str = format_distance(route_volta.distance)
-        consumo_total_de_combustivel_str_volta, consumo_total_de_combustivel_volta = get_consumo_total_de_combustivel(route_volta,
-                                                                                                          viagem_volta.km_litro)
-        dados_viajem_view.distancia = format_distance(route.distance + route_volta.distance)
-        dados_viajem_view.vias_da_rota = dados_viajem_view.vias_da_rota + vias_da_rota_volta
-        dados_viagem_ida_volta = set(dados_viajem_view.vias_da_rota)
-        dados_viagem_ida_volta = list(dados_viagem_ida_volta)
-        dados_viajem_view.vias_da_rota = dados_viagem_ida_volta
-        dados_viajem_view.consumo_total_de_combustivel = round(consumo_total_de_combustivel_volta + consumo_total_de_combustivel, 2)
-
-    return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})

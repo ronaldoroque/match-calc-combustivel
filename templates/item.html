@@ -1,8 +1,7 @@
-{% extends "/static/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Distância: {{ distance }}</h1>
-<h1>Principais vias da rota: {{ vias_da_rota|join(", ") }}</h1>
-<h1>Litros necessários: {{ consumo_do_veiculo }}</h1>
-
+<h1>Distância: {{ distancia_km }}</h1>
+<h1>Principais vias da rota: {{ vias_da_rota }}</h1>
+<h1>Litros necessários: {{ consumo_total_de_combustivel }}</h1>
 {% endblock content %}

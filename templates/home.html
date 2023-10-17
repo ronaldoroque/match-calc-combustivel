@@ -137,15 +137,15 @@
                         <img src="https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"
                         width="100%">
                         <div class="card-body">
-                            {% if not dados_viajem.distancia %}
+                            {% if not distancia_km %}
                                 <p class="card-text">
                                     Calcula a quantidade de combustível necessária para percorrer uma determinada distância
                                     entre dois pontos, levando em consideração o consumo estimado do veículo.
                                 </p>
                             {% else %}
-                                <p class="card-text">Distância: {{ dados_viajem.distancia }} Km</p>
-                                <p class="card-text">Principais vias da rota: {{ dados_viajem.vias_da_rota|join(", ") }}</p>
-                                <p class="card-text">Litros necessários: {{ dados_viajem.consumo_total_de_combustivel }} litros</p>
+                                <p class="card-text">Distância: {{ distancia_km }} Km</p>
+                                <p class="card-text">Principais vias da rota: {{ vias_da_rota }}</p>
+                                <p class="card-text">Litros necessários: {{ consumo_total_de_combustivel }} litros</p>
                             {% endif %}
                         </div>
                     </div>
@@ -187,9 +187,9 @@
 
                         <div class="row g-5 pt-3">
                             <div class="col-sm-12 col-md-6">
-                                <label for="km_litro" class="form-label">Média de consumo do veículo:</label>
+                                <label for="media_consumo_veiculo" class="form-label">Média de consumo do veículo:</label>
                                 <div class="input-group has-validation">
-                                    <input type="number" class="form-control" id="km_litro" name="km_litro" placeholder=""
+                                    <input type="number" class="form-control" id="media_consumo_veiculo" name="media_consumo_veiculo" placeholder=""
                                            required>
                                     <span class="input-group-text">km/litro</span>
                                     <div class="invalid-feedback">Insira da média de consumo.</div>
