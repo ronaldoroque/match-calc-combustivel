@@ -34,7 +34,7 @@ async def home_view_with_post(request: Request, origem_longitude: float = Form(.
     return templates.TemplateResponse("home.html", {"request": request, **relatorio_viagem_formatado})
 
 
-@router.post("/api/viagem", response_class=JSONResponse)
+@router.post("/viagem", response_class=JSONResponse)
 async def post_data_viagem(viagem: Viagem):
     relatorio_viagem: RelatorioViagem = await calcula_viagem(viagem)
     relatorio_viagem_formatado: dict = relatorio_viagem.format()
