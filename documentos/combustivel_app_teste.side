@@ -1,0 +1,235 @@
+{
+  "id": "a39bf99d-31b8-4856-994a-34491f9942d4",
+  "version": "2.0",
+  "name": "combustivel_app",
+  "url": "https://ronaldoroque.github.io/match-calc-combustivel/",
+  "tests": [{
+    "id": "2502d703-9535-4a9f-bbea-1d43322e21f5",
+    "name": "Teste local Viagem de 47,23 km",
+    "commands": [{
+      "id": "46be9c68-954f-4508-b359-cac63091a942",
+      "comment": "",
+      "command": "open",
+      "target": "http://localhost:3000/match-calc-combustivel/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5c0be434-6d9f-4cbb-a223-7fef20f05e03",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1166x800",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ba4fd3bc-a1cc-4c63-989e-a3760c6b0fa7",
+      "comment": "",
+      "command": "type",
+      "target": "id=origemLatitude",
+      "targets": [
+        ["id=origemLatitude", "id"],
+        ["css=#origemLatitude", "css:finder"],
+        ["xpath=//input[@id='origemLatitude']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "-20.024763192098714"
+    }, {
+      "id": "569a9808-3bf0-4b26-b067-197ba281c195",
+      "comment": "",
+      "command": "type",
+      "target": "id=origemLongitude",
+      "targets": [
+        ["id=origemLongitude", "id"],
+        ["css=#origemLongitude", "css:finder"],
+        ["xpath=//input[@id='origemLongitude']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div/div[3]/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/input", "xpath:position"]
+      ],
+      "value": "-44.02842805912924"
+    }, {
+      "id": "0b819d13-1672-414c-ab30-a06d08c94948",
+      "comment": "",
+      "command": "type",
+      "target": "id=destinoLatitude",
+      "targets": [
+        ["id=destinoLatitude", "id"],
+        ["css=#destinoLatitude", "css:finder"],
+        ["xpath=//input[@id='destinoLatitude']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[2]/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/input", "xpath:position"]
+      ],
+      "value": "-19.874692505512705"
+    }, {
+      "id": "fe38ce9e-6ffb-4e35-86d5-03c9ba11fd09",
+      "comment": "",
+      "command": "type",
+      "target": "id=destinoLongitude",
+      "targets": [
+        ["id=destinoLongitude", "id"],
+        ["css=#destinoLongitude", "css:finder"],
+        ["xpath=//input[@id='destinoLongitude']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[2]/div[3]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div[3]/div/input", "xpath:position"]
+      ],
+      "value": "-43.98276918932597"
+    }, {
+      "id": "d5859e09-141f-41c8-ac07-396887715685",
+      "comment": "",
+      "command": "type",
+      "target": "id=mediaConsumoVeiculo",
+      "targets": [
+        ["id=mediaConsumoVeiculo", "id"],
+        ["css=#mediaConsumoVeiculo", "css:finder"],
+        ["xpath=//input[@id='mediaConsumoVeiculo']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[3]/div/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div/input", "xpath:position"]
+      ],
+      "value": "14"
+    }, {
+      "id": "9c60f280-9c92-4539-a430-40e282c7c6bd",
+      "comment": "",
+      "command": "click",
+      "target": "id=idaEVolta",
+      "targets": [
+        ["id=idaEVolta", "id"],
+        ["css=#idaEVolta", "css:finder"],
+        ["xpath=//input[@id='idaEVolta']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[3]/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "52b9a1af-5d17-40cb-a21d-d5c0f65f7721",
+      "comment": "",
+      "command": "click",
+      "target": "id=submitFormViagem",
+      "targets": [
+        ["id=submitFormViagem", "id"],
+        ["css=#submitFormViagem", "css:finder"],
+        ["xpath=//button[@id='submitFormViagem']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[4]/div/button[2]", "xpath:idRelative"],
+        ["xpath=//button[2]", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }, {
+    "id": "3f303861-952b-447b-84e1-9a81fefe6434",
+    "name": "Teste remote Viagem de 47,23 km",
+    "commands": [{
+      "id": "784351b3-decf-4c94-9de7-0bb5ee94a49d",
+      "comment": "",
+      "command": "open",
+      "target": "https://ronaldoroque.github.io/match-calc-combustivel/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "51daa43c-bc03-4bea-9335-e1a0765ebb9b",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1166x800",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c05565ca-512a-4f17-9854-d32875d1adbd",
+      "comment": "",
+      "command": "type",
+      "target": "id=origemLatitude",
+      "targets": [
+        ["id=origemLatitude", "id"],
+        ["css=#origemLatitude", "css:finder"],
+        ["xpath=//input[@id='origemLatitude']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "-20.024763192098714"
+    }, {
+      "id": "c689fd40-2810-4a8a-b117-e76efc27fed8",
+      "comment": "",
+      "command": "type",
+      "target": "id=origemLongitude",
+      "targets": [
+        ["id=origemLongitude", "id"],
+        ["css=#origemLongitude", "css:finder"],
+        ["xpath=//input[@id='origemLongitude']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div/div[3]/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/input", "xpath:position"]
+      ],
+      "value": "-44.02842805912924"
+    }, {
+      "id": "768c56c0-da51-404e-ac28-6f9c35c7d8c0",
+      "comment": "",
+      "command": "type",
+      "target": "id=destinoLatitude",
+      "targets": [
+        ["id=destinoLatitude", "id"],
+        ["css=#destinoLatitude", "css:finder"],
+        ["xpath=//input[@id='destinoLatitude']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[2]/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/input", "xpath:position"]
+      ],
+      "value": "-19.874692505512705"
+    }, {
+      "id": "eaaf70bf-dd24-483d-99db-64068477957b",
+      "comment": "",
+      "command": "type",
+      "target": "id=destinoLongitude",
+      "targets": [
+        ["id=destinoLongitude", "id"],
+        ["css=#destinoLongitude", "css:finder"],
+        ["xpath=//input[@id='destinoLongitude']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[2]/div[3]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div[3]/div/input", "xpath:position"]
+      ],
+      "value": "-43.98276918932597"
+    }, {
+      "id": "47d1b759-eaa4-4027-9af0-88bdd8ac1ae6",
+      "comment": "",
+      "command": "type",
+      "target": "id=mediaConsumoVeiculo",
+      "targets": [
+        ["id=mediaConsumoVeiculo", "id"],
+        ["css=#mediaConsumoVeiculo", "css:finder"],
+        ["xpath=//input[@id='mediaConsumoVeiculo']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[3]/div/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div/input", "xpath:position"]
+      ],
+      "value": "14"
+    }, {
+      "id": "432e4564-d41f-4de3-a31c-b12308aa2af6",
+      "comment": "",
+      "command": "click",
+      "target": "id=idaEVolta",
+      "targets": [
+        ["id=idaEVolta", "id"],
+        ["css=#idaEVolta", "css:finder"],
+        ["xpath=//input[@id='idaEVolta']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[3]/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "cce6bb54-1fba-4303-ac83-c9129e761027",
+      "comment": "",
+      "command": "click",
+      "target": "id=submitFormViagem",
+      "targets": [
+        ["id=submitFormViagem", "id"],
+        ["css=#submitFormViagem", "css:finder"],
+        ["xpath=//button[@id='submitFormViagem']", "xpath:attributes"],
+        ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[4]/div/button[2]", "xpath:idRelative"],
+        ["xpath=//button[2]", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "6c7e47a3-73b8-4074-b8a3-cc19cfec2e6d",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["2502d703-9535-4a9f-bbea-1d43322e21f5"]
+  }],
+  "urls": ["http://localhost:3000/match-calc-combustivel/", "https://ronaldoroque.github.io/match-calc-combustivel/"],
+  "plugins": []
+}

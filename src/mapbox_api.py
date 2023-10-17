@@ -15,7 +15,7 @@ async def get_route(viagem: Viagem) -> Route:
         'geometries': "geojson",
         'access_token': settings().mapbox_access_token,
     }
-    url = f"{endpoint_mapbox}/{viagem.coodernadas()}"
+    url = f"{endpoint_mapbox}/{viagem.get_coodernadas_to_str()}"
     mapbox_return = get(url=url, params=params)
     response = mapbox_return.json()
     try:
@@ -53,14 +53,19 @@ def invert_viagem(viagem: Viagem) -> Viagem:
                   media_consumo_veiculo=viagem.media_consumo_veiculo, ida_e_volta=viagem.ida_e_volta)
 
 
+def join_ida_e_volta(relatorio_ida: RelatorioViagem, relatorio_volta: RelatorioViagem) -> RelatorioViagem:
+    distancia_ida_e_volta: float = relatorio_ida.distancia_km + relatorio_volta.distancia_km
+    vias_da_rota_ida_e_volta: list = list(set(relatorio_ida.vias_da_rota + relatorio_volta.vias_da_rota))
+    consumo_total_de_combustivel_ida_e_volta: float = relatorio_ida.consumo_total_de_combustivel + relatorio_volta.consumo_total_de_combustivel
+    return RelatorioViagem(distancia_km=distancia_ida_e_volta, vias_da_rota=vias_da_rota_ida_e_volta,
+                           consumo_total_de_combustivel=consumo_total_de_combustivel_ida_e_volta)
+
+
 async def calcula_viagem(viagem: Viagem) -> RelatorioViagem:
     relatorio_ida: RelatorioViagem = await get_relatorio(viagem)
     if not viagem.ida_e_volta:
         return relatorio_ida
     viagem_volta: Viagem = invert_viagem(viagem)
     relatorio_volta: RelatorioViagem = await get_relatorio(viagem_volta)
-    distancia_ida_e_volta: float = relatorio_ida.distancia_km + relatorio_volta.distancia_km
-    vias_da_rota_ida_e_volta: list = list(set(relatorio_ida.vias_da_rota + relatorio_volta.vias_da_rota))
-    consumo_total_de_combustivel_ida_e_volta: float = relatorio_ida.consumo_total_de_combustivel + relatorio_volta.consumo_total_de_combustivel
-    return RelatorioViagem(distancia_km=distancia_ida_e_volta, vias_da_rota=vias_da_rota_ida_e_volta,
-                           consumo_total_de_combustivel=consumo_total_de_combustivel_ida_e_volta)
+    relatorio_ida_e_volta: RelatorioViagem = join_ida_e_volta(relatorio_ida=relatorio_ida, relatorio_volta=relatorio_volta)
+    return relatorio_ida_e_volta

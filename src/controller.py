@@ -1,5 +1,5 @@
 from fastapi import Request, Form, APIRouter
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from .schemas import *
@@ -24,7 +24,7 @@ async def home_view_get(request: Request):
 
 
 @router.post("/", response_class=HTMLResponse)
-async def read_item(request: Request, origem_longitude: float = Form(...), origem_latitude: float = Form(...),
+async def home_view_with_post(request: Request, origem_longitude: float = Form(...), origem_latitude: float = Form(...),
                     destino_longitude: float = Form(...), destino_latitude: float = Form(...),
                     media_consumo_veiculo: float = Form(...), ida_e_volta: bool = Form(...)):
     viagem = Viagem(origem_longitude=origem_longitude, origem_latitude=origem_latitude, destino_longitude=destino_longitude,
@@ -32,3 +32,10 @@ async def read_item(request: Request, origem_longitude: float = Form(...), orige
     relatorio_viagem: RelatorioViagem = await calcula_viagem(viagem)
     relatorio_viagem_formatado: dict = relatorio_viagem.format()
     return templates.TemplateResponse("home.html", {"request": request, **relatorio_viagem_formatado})
+
+
+@router.post("/api/viagem", response_class=JSONResponse)
+async def post_data_viagem(viagem: Viagem):
+    relatorio_viagem: RelatorioViagem = await calcula_viagem(viagem)
+    relatorio_viagem_formatado: dict = relatorio_viagem.format()
+    return relatorio_viagem_formatado

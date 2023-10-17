@@ -16,7 +16,7 @@ class Viagem(BaseModel):
     ida_e_volta: Optional[bool] = False
     media_consumo_veiculo: float
 
-    def coodernadas(self):
+    def get_coodernadas_to_str(self):
         return f"{self.origem_longitude},{self.origem_latitude};{self.destino_longitude},{self.destino_latitude}"
 
 
