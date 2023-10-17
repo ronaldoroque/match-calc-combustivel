@@ -6,11 +6,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import get_settings as settings
-from src.mapbox_api import calcula_viagem
-from src.schemas import Viagem, RelatorioViagem
-
-
-# from src.controller import router
+from src.controller import router
 
 
 def create_app() -> FastAPI:
@@ -22,7 +18,7 @@ def create_app() -> FastAPI:
         default_response_class=Default(ORJSONResponse)
     )
     app.add_middleware(
-        TrustedHostMiddleware, allowed_hosts=settings().allowed_host.split()
+        TrustedHostMiddleware, allowed_hosts=["*"]
     )
     app.add_middleware(
         CORSMiddleware,
@@ -33,15 +29,13 @@ def create_app() -> FastAPI:
     )
 
     app.mount("/static", StaticFiles(directory="static"), name="static")
-    # app.include_router(router=router)
+    app.include_router(router=router)
     return app
 
 
 app = create_app()
 
 
-@app.post("/viagem")
-async def post_data_viagem(viagem: Viagem):
-    relatorio_viagem: RelatorioViagem = await calcula_viagem(viagem)
-    relatorio_viagem_formatado: dict = relatorio_viagem.format()
-    return relatorio_viagem_formatado
+@app.get("/", response_class=ORJSONResponse)
+async def hello_word():
+    return {"message": "Hello Word"}

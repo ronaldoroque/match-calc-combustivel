@@ -17,7 +17,7 @@ async def distance(request: Request, viagem: Viagem):
     return templates.TemplateResponse("item.html", {"request": request, **relatorio_viagem_formatado})
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/home", response_class=HTMLResponse)
 async def home_view_get(request: Request):
     dados_viajem_view = RelatorioViagem()
     return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})
