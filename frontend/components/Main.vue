@@ -52,7 +52,7 @@ export default defineComponent({
     },
     submeterForm: async function () {
       const baseUrlBackend = process.env.NODE_ENV === 'production' ? "https://match-calc-combustivel.vercel.app" : "http://localhost:8000"
-      const endpoint = "/api/viagem"
+      const endpoint = "/viagem"
       await this.$axios.post(baseUrlBackend + endpoint, this.dataFormSnakeCase()).then((response) => {
         if (response.status === 200) {
           this.relatorioViagem = response.data

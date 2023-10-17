@@ -17,13 +17,13 @@ async def distance(request: Request, viagem: Viagem):
     return templates.TemplateResponse("item.html", {"request": request, **relatorio_viagem_formatado})
 
 
-@router.get("/home", response_class=HTMLResponse)
+@router.get("/home_html", response_class=HTMLResponse)
 async def home_view_get(request: Request):
     dados_viajem_view = RelatorioViagem()
     return templates.TemplateResponse("home.html", {"request": request, "dados_viajem": dados_viajem_view})
 
 
-@router.post("/", response_class=HTMLResponse)
+@router.post("/home_html", response_class=HTMLResponse)
 async def home_view_with_post(request: Request, origem_longitude: float = Form(...), origem_latitude: float = Form(...),
                     destino_longitude: float = Form(...), destino_latitude: float = Form(...),
                     media_consumo_veiculo: float = Form(...), ida_e_volta: bool = Form(...)):

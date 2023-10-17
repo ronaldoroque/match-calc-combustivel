@@ -37,5 +37,5 @@ app = create_app()
 
 
 @app.get("/", response_class=ORJSONResponse)
-async def hello_word():
-    return {"message": "Hello Word"}
+async def boas_vindas_api():
+    return {"message": "Tudo Ok na API.", "frontend_url": "https://ronaldoroque.github.io/match-calc-combustivel"}
