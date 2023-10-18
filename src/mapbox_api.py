@@ -58,7 +58,7 @@ def join_ida_e_volta(relatorio_ida: RelatorioViagem, relatorio_volta: RelatorioV
     vias_da_rota_ida_e_volta: list = list(set(relatorio_ida.vias_da_rota + relatorio_volta.vias_da_rota))
     consumo_total_de_combustivel_ida_e_volta: float = relatorio_ida.consumo_total_de_combustivel + relatorio_volta.consumo_total_de_combustivel
     return RelatorioViagem(distancia_km=distancia_ida_e_volta, vias_da_rota=vias_da_rota_ida_e_volta,
-                           consumo_total_de_combustivel=consumo_total_de_combustivel_ida_e_volta)
+                           consumo_total_de_combustivel=consumo_total_de_combustivel_ida_e_volta, ida_e_volta=True)
 
 
 async def calcula_viagem(viagem: Viagem) -> RelatorioViagem:

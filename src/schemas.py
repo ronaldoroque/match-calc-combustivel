@@ -9,15 +9,22 @@ format_decimal = "%.{0:d}f".format(2)
 
 
 class Viagem(BaseModel):
-    origem_longitude: float
-    origem_latitude: float
-    destino_longitude: float
-    destino_latitude: float
+    origem_longitude: Union[float, str]
+    origem_latitude: Union[float, str]
+    destino_longitude: Union[float, str]
+    destino_latitude: Union[float, str]
     ida_e_volta: Optional[bool] = False
-    media_consumo_veiculo: float
+    media_consumo_veiculo: Union[float, str]
 
     def get_coodernadas_to_str(self):
         return f"{self.origem_longitude},{self.origem_latitude};{self.destino_longitude},{self.destino_latitude}"
+
+    @validator('origem_longitude', 'origem_latitude', 'destino_longitude', 'destino_latitude', 'media_consumo_veiculo')
+    def str_to_float(cls, v):
+        if isinstance(v, str):
+            v = float(v.replace(",", "."))
+            return v
+        return v
 
 
 class Leg(BaseModel):
@@ -50,6 +57,7 @@ class RelatorioViagem(BaseModel):
     distancia_km: Optional[float] = None
     vias_da_rota: Optional[list[str]] = []
     consumo_total_de_combustivel: Optional[float] = None
+    ida_e_volta: Optional[bool] = False
 
     def float_to_str_br(self, valor: float) -> str:
         return locale.format_string(format_decimal, valor, grouping=True, monetary=False)
@@ -65,5 +73,6 @@ class RelatorioViagem(BaseModel):
             'distancia_km': distancia_km_str_br,
             'vias_da_rota': vias_da_rota_str,
             'consumo_total_de_combustivel': consumo_total_de_combustivel_str_br,
+            'ida_e_volta': self.ida_e_volta,
         }
         return result
