@@ -1,27 +1,23 @@
-import colors from 'vuetify/es5/util/colors'
-
 let development = process.env.NODE_ENV !== 'production'
-
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - Calc. Combustível',
-    title: 'Home',
+    title: 'Match Calc Combustível',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { 'http-equiv': 'content-language', content: 'pt-BR' },
-      { property: 'og:locale', content: 'pt-BR' },
+      { 'http-equiv': 'content-language', content: 'pt-Br' },
+      { property: 'og:locale', content: 'pt_BR' },
       { property: 'og:site_name', content: 'Calc. de Combustível' },
       { hid: 'description', name: 'description', content: 'Calculadora de Combustível' },
       { name: 'google', content: 'notranslate' },
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/logo.ico' }
     ]
   },
 
@@ -38,19 +34,24 @@ export default {
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
-    // https://go.nuxtjs.dev/eslint
-    // '@nuxtjs/eslint-module',
-    // https://go.nuxtjs.dev/vuetify
-    '@nuxtjs/vuetify'
+    // https://go.nuxtjs.dev/typescript
+    '@nuxt/typescript-build'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    // https://go.nuxtjs.dev/bootstrap
+    'bootstrap-vue/nuxt',
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
     '@nuxtjs/pwa'
   ],
+
+  // https://stackoverflow.com/questions/61045853/how-to-include-bootstrap-vue-icons-into-nuxtjs-problem-with-navbar-down-arrows
+  bootstrapVue: {
+    icons: true
+  },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
@@ -74,32 +75,13 @@ export default {
     }
   },
 
-  // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
-  vuetify: {
-    customVariables: ['~/assets/variables.scss'],
-    theme: {
-      dark: false,
-      themes: {
-        dark: {
-          primary: colors.blue.darken2,
-          accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
-          info: colors.teal.lighten1,
-          warning: colors.amber.base,
-          error: colors.deepOrange.accent4,
-          success: colors.green.accent3
-        }
-      }
-    }
+  // Build Configuration: https://go.nuxtjs.dev/config-build
+  build: {
   },
 
   // https://v2.nuxt.com/deployments/github-pages/
   router: {
     base: '/match-calc-combustivel/'
-  },
-
-  // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
   },
 
   // https://stackoverflow.com/questions/54380719/set-path-to-output-folder-in-nuxt
