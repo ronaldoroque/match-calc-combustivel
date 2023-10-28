@@ -1,14 +1,15 @@
 # Calculadora de Combustível
 
 Neste projeto, os participantes criaram uma aplicação em Python que calcula a quantidade de combustível necessária para 
-percorrer uma determinada distância entre dois pontos geográfica, levando em consideração o consumo médio de combustível
+percorrer uma determinada distância entre dois pontos geográficos, levando em consideração o consumo médio de combustível
 do veículo.
 
-Além de calcular a quantidade de combustível necessária para percorrer uma determinada distância entre dois pontos de 
-coordenadas geográficas, levando em consideração o consumo médio do veículo, o sistema retorna quais as principais vias 
+Além de calcular a quantidade de combustível necessária, o sistema retorna quais as principais vias 
 da rota sugerida com base nos dados do [Mapbox](https://www.mapbox.com).
 
 Veja o projeto funcional em https://ronaldoroque.github.io/match-calc-combustivel
+
+Conheça a [Visão do Produto](VISAO.md) 
 
 ## Principais Tecnologias:
 - Python (3.11.3)
@@ -21,6 +22,7 @@ Veja o projeto funcional em https://ronaldoroque.github.io/match-calc-combustive
 ## Participantes:
 - [Rogerio Andrade](https://github.com/rogpessoa)
 - [Ronaldo Roque](https://github.com/ronaldoroque)
+- 
 
 
 _____
