@@ -55,6 +55,7 @@ export default {
       const baseUrlBackend = this.getUrlBackend()
       await this.$axios.post(baseUrlBackend + endpoint, this.dataFormSnakeCase).then((response) => {
         if (response.status === 200) {
+          console.log(response)
           this.relatorioViagem = response.data
           this.showRelatorioViagem = true
           this.messageAlert = 'Relatório de Viagem recebido com sucesso.'
@@ -121,13 +122,17 @@ export default {
       }
       return {state, message}
     },
-    ruleIsNumber: function (value) {
+    ruleIsNumberPositive: function (value) {
       let state = true
       let message = ""
       const numFloat = parseFloat(value)
       if ( isNaN(numFloat) ) {
         state = false
         message = 'Insira um valor numérico.'
+      }
+      if ( numFloat <= 0 ) {
+        state = false
+        message = 'Insira um valor maior que zero.'
       }
       return {state, message}
     },
@@ -138,68 +143,68 @@ export default {
     }
   },
   watch: {
-    'dataForm.origemLatitude.value' (new_value) {
-      if ( this.ruleLatitude(new_value).state ) {
-        this.dataForm.origemLatitude.status = this.ruleLatitude(new_value).state
-        this.dataForm.origemLatitude.mess = this.ruleLatitude(new_value).message
-        this.dataFormSnakeCase.origem_latitude = parseFloat(new_value)
+    'dataForm.origemLatitude.value' (newValue) {
+      if ( this.ruleLatitude(newValue).state ) {
+        this.dataForm.origemLatitude.status = this.ruleLatitude(newValue).state
+        this.dataForm.origemLatitude.mess = this.ruleLatitude(newValue).message
+        this.dataFormSnakeCase.origem_latitude = parseFloat(newValue)
       } else {
-        this.dataForm.origemLatitude.status = this.ruleLatitude(new_value).state
-        this.dataForm.origemLatitude.mess = this.ruleLatitude(new_value).message
+        this.dataForm.origemLatitude.status = this.ruleLatitude(newValue).state
+        this.dataForm.origemLatitude.mess = this.ruleLatitude(newValue).message
         this.dataFormSnakeCase.origem_latitude = null
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.origemLongitude.value' (new_value) {
-      if ( this.ruleLongitude(new_value).state ) {
-        this.dataForm.origemLongitude.status = this.ruleLongitude(new_value).state
-        this.dataForm.origemLongitude.mess = this.ruleLongitude(new_value).message
-        this.dataFormSnakeCase.origem_longitude = parseFloat(new_value)
+    'dataForm.origemLongitude.value' (newValue) {
+      if ( this.ruleLongitude(newValue).state ) {
+        this.dataForm.origemLongitude.status = this.ruleLongitude(newValue).state
+        this.dataForm.origemLongitude.mess = this.ruleLongitude(newValue).message
+        this.dataFormSnakeCase.origem_longitude = parseFloat(newValue)
       } else {
-        this.dataForm.origemLongitude.status = this.ruleLongitude(new_value).state
-        this.dataForm.origemLongitude.mess = this.ruleLongitude(new_value).message
+        this.dataForm.origemLongitude.status = this.ruleLongitude(newValue).state
+        this.dataForm.origemLongitude.mess = this.ruleLongitude(newValue).message
         this.dataFormSnakeCase.origem_longitude = null
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.destinoLatitude.value' (new_value) {
-      if ( this.ruleLatitude(new_value).state ) {
-        this.dataForm.destinoLatitude.status = this.ruleLatitude(new_value).state
-        this.dataForm.destinoLatitude.mess = this.ruleLatitude(new_value).message
-        this.dataFormSnakeCase.destino_latitude = parseFloat(new_value)
+    'dataForm.destinoLatitude.value' (newValue) {
+      if ( this.ruleLatitude(newValue).state ) {
+        this.dataForm.destinoLatitude.status = this.ruleLatitude(newValue).state
+        this.dataForm.destinoLatitude.mess = this.ruleLatitude(newValue).message
+        this.dataFormSnakeCase.destino_latitude = parseFloat(newValue)
       } else {
-        this.dataForm.destinoLatitude.status = this.ruleLatitude(new_value).state
-        this.dataForm.destinoLatitude.mess = this.ruleLatitude(new_value).message
+        this.dataForm.destinoLatitude.status = this.ruleLatitude(newValue).state
+        this.dataForm.destinoLatitude.mess = this.ruleLatitude(newValue).message
         this.dataFormSnakeCase.destino_latitude = null
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.destinoLongitude.value' (new_value) {
-      if ( this.ruleLongitude(new_value).state ) {
-        this.dataForm.destinoLongitude.status = this.ruleLongitude(new_value).state
-        this.dataForm.destinoLongitude.mess = this.ruleLongitude(new_value).message
-        this.dataFormSnakeCase.destino_longitude = parseFloat(new_value)
+    'dataForm.destinoLongitude.value' (newValue) {
+      if ( this.ruleLongitude(newValue).state ) {
+        this.dataForm.destinoLongitude.status = this.ruleLongitude(newValue).state
+        this.dataForm.destinoLongitude.mess = this.ruleLongitude(newValue).message
+        this.dataFormSnakeCase.destino_longitude = parseFloat(newValue)
       } else {
-        this.dataForm.destinoLongitude.status = this.ruleLongitude(new_value).state
-        this.dataForm.destinoLongitude.mess = this.ruleLongitude(new_value).message
+        this.dataForm.destinoLongitude.status = this.ruleLongitude(newValue).state
+        this.dataForm.destinoLongitude.mess = this.ruleLongitude(newValue).message
         this.dataFormSnakeCase.destino_longitude = null
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.mediaConsumoVeiculo.value' (new_value) {
-      if ( this.ruleIsNumber(new_value).state ) {
-        this.dataForm.mediaConsumoVeiculo.status = this.ruleIsNumber(new_value).state
-        this.dataForm.mediaConsumoVeiculo.mess = this.ruleIsNumber(new_value).message
-        this.dataFormSnakeCase.media_consumo_veiculo = parseFloat(new_value)
+    'dataForm.mediaConsumoVeiculo.value' (newValue) {
+      if ( this.ruleIsNumberPositive(newValue).state ) {
+        this.dataForm.mediaConsumoVeiculo.status = this.ruleIsNumberPositive(newValue).state
+        this.dataForm.mediaConsumoVeiculo.mess = this.ruleIsNumberPositive(newValue).message
+        this.dataFormSnakeCase.media_consumo_veiculo = parseFloat(newValue)
       } else {
-        this.dataForm.mediaConsumoVeiculo.status = this.ruleIsNumber(new_value).state
-        this.dataForm.mediaConsumoVeiculo.mess = this.ruleIsNumber(new_value).message
+        this.dataForm.mediaConsumoVeiculo.status = this.ruleIsNumberPositive(newValue).state
+        this.dataForm.mediaConsumoVeiculo.mess = this.ruleIsNumberPositive(newValue).message
         this.dataFormSnakeCase.media_consumo_veiculo = null
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.idaEVolta.value' (new_value) {
-      this.dataFormSnakeCase.ida_e_volta = new_value
+    'dataForm.idaEVolta.value' (newValue) {
+      this.dataFormSnakeCase.ida_e_volta = newValue
     },
   }
 }
