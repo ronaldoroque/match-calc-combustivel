@@ -1,7 +1,10 @@
 from ctypes import Union
 import locale
+from http import HTTPStatus
 from typing import Optional, Union
 
+from fastapi import HTTPException
+from fastapi.logger import logger
 from pydantic import BaseModel, validator
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -24,6 +27,27 @@ class Viagem(BaseModel):
         if isinstance(v, str):
             v = float(v.replace(",", "."))
             return v
+        return v
+
+    @validator('origem_longitude', 'destino_longitude')
+    def longitude_limite(cls, v):
+        if v > 180 or v < -180:
+            mess = 'Verifique se os valores de Longitude foram digitados corretamente.'
+            raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
+        return v
+
+    @validator('origem_latitude', 'destino_latitude')
+    def latitude_limite(cls, v):
+        if v > 90 or v < -90:
+            mess = 'Verifique se os valores de Latitude foram digitados corretamente.'
+            raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
+        return v
+
+    @validator('media_consumo_veiculo')
+    def media_consumo_limite(cls, v):
+        if v <= 0:
+            mess = 'A média de consumo deve ser maior que zero.'
+            raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
         return v
 
 
