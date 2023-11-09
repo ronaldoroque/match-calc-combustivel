@@ -17,6 +17,14 @@ class TestInsertCoord:
         response = client.post(f"/viagem", json=self.payload)
         assert response.status_code == 200
 
+    def test_insercao_texto(self, client: TestClient) -> None:
+        payload_errado = self.payload.copy()
+        payload_errado["origem_longitude"] = "texto"
+        response = client.post(f"/viagem", json=payload_errado)
+        payload_resp = response.json()
+        assert response.status_code == 422
+        assert "detail" in payload_resp
+
     def test_media_consumo_negativa(self, client: TestClient) -> None:
         payload_errado = self.payload.copy()
         payload_errado["media_consumo_veiculo"] = -14
