@@ -18,6 +18,9 @@ async def get_route(viagem: Viagem) -> Route:
     url = f"{endpoint_mapbox}/{viagem.get_coodernadas_to_str()}"
     mapbox_return = get(url=url, params=params)
     response = mapbox_return.json()
+    if response['code'] == 'NoSegment' or response['code'] == 'InvalidInput':
+        mess = "Não foi possível encontrar uma rota com base nas coordenadas fornecidas. Verifique se os valores foram digitados corretamente."
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
     try:
         endereco = response['routes'][0]['legs'][0]['summary']
     except KeyError as erro:
@@ -31,7 +34,7 @@ async def get_route(viagem: Viagem) -> Route:
                                 detail="Verifique se os valores de Latitude foram digitados corretamente.")
     except IndexError as erro:
         mess = "Não foi possível encontrar uma rota com base nas coordenadas fornecidas. Verifique se os valores foram digitados corretamente."
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=mess)
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
     route = Route(**response['routes'][0])
     return route
 
