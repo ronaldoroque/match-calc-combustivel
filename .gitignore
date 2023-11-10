@@ -7,3 +7,5 @@ __pycache__
 *.dtmp
 /frontend_bootstrpvue/node_modules/*
 /frontend_bootstrpvue/.nuxt/*
+/e2e/node_modules/
+/e2e/cypress/videos/*

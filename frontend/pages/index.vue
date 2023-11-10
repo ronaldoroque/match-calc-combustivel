@@ -225,7 +225,7 @@ export default {
                 entre dois pontos, levando em consideração o consumo estimado do veículo.
               </v-card-text>
               <div v-else>
-                <v-card-text>
+                <v-card-text data-cy="reportCard">
                   <p v-if="relatorioViagem.ida_e_volta" class="text-h6">Para a viagem de ida e volta temos:</p>
                   <p v-else class="text-h6">Para apenas a viagem de ida:</p>
                   <p><b>Distância:</b> {{ relatorioViagem.distancia_km }} Km</p>
@@ -287,7 +287,7 @@ export default {
                   Limpar
                   <v-icon right>mdi-trash-can</v-icon>
                 </v-btn>
-                <v-btn type="submit" id="btnSubmetForm" color="success" :disabled="!dataFormIsValid">
+                <v-btn type="submit" id="btnSubmitForm" data-cy="SubmitForm" color="success" :disabled="!dataFormIsValid">
                   Enviar
                   <v-icon right>mdi-send</v-icon>
                 </v-btn>
