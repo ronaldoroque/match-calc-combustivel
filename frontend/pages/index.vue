@@ -2,9 +2,11 @@
 
 export default {
   name: 'Index',
-  data () {
+  data() {
     return {
       displayAlert: false,
+      alertTimeout: 100,
+      alertTimeoutIntervId: null,
       alertColor: 'success',
       messageAlert: 'Aguardando menssagem...',
       dados_viajem: {
@@ -33,7 +35,7 @@ export default {
       relatorioViagem: {
         consumo_total_de_combustivel: '',
         distancia_km: '',
-        vias_da_rota: '',
+        vias_da_rota: [],
         ida_e_volta: null
       },
       dataFormSnakeCase: {
@@ -83,22 +85,22 @@ export default {
     countDownChanged(dismissCountDown) {
       this.dismissCountDown = dismissCountDown
     },
-    showAlert () {
+    showAlert() {
       this.displayAlert = true
     },
     ruleLatitude: function (value) {
       let state = true
       let message = ""
       const latitudeFloat = parseFloat(value)
-      if ( isNaN(latitudeFloat) ) {
+      if (isNaN(latitudeFloat)) {
         state = false
         message = 'Insira uma coordenada numérica.'
       }
-      if ( latitudeFloat < -90 ) {
+      if (latitudeFloat < -90) {
         state = false
         message = 'A latitude não pode ser menor do que -90'
       }
-      if ( latitudeFloat > 90 ) {
+      if (latitudeFloat > 90) {
         state = false
         message = 'A latitude não pode ser maior do que 90'
       }
@@ -108,15 +110,15 @@ export default {
       let state = true
       let message = ""
       const longitudeFloat = parseFloat(value)
-      if ( isNaN(longitudeFloat) ) {
+      if (isNaN(longitudeFloat)) {
         state = false
         message = 'Insira uma coordenada numérica.'
       }
-      if ( longitudeFloat < -180 ) {
+      if (longitudeFloat < -180) {
         state = false
         message = 'A longitude não pode ser menor do que -180'
       }
-      if ( longitudeFloat > 180 ) {
+      if (longitudeFloat > 180) {
         state = false
         message = 'A longitude não pode ser maior do que 180'
       }
@@ -126,11 +128,11 @@ export default {
       let state = true
       let message = ""
       const numFloat = parseFloat(value)
-      if ( isNaN(numFloat) ) {
+      if (isNaN(numFloat)) {
         state = false
         message = 'Insira um valor numérico.'
       }
-      if ( numFloat <= 0 ) {
+      if (numFloat <= 0) {
         state = false
         message = 'Insira um valor maior que zero.'
       }
@@ -138,13 +140,37 @@ export default {
     },
     validarForm: function () {
       return this.dataForm.origemLatitude.status && this.dataForm.origemLongitude.status &&
-          this.dataForm.destinoLatitude.status && this.dataForm.destinoLongitude.status &&
-          this.dataForm.mediaConsumoVeiculo.status
+        this.dataForm.destinoLatitude.status && this.dataForm.destinoLongitude.status &&
+        this.dataForm.mediaConsumoVeiculo.status
+    },
+    alertRunTimeout: function (timeOut) {
+      const resolution = 30
+      const timeToReloadVal = timeOut/resolution
+      const percent = 100/resolution
+      if (!this.alertTimeoutIntervId) {
+        this.alertTimeoutIntervId = setInterval(() => {
+          this.alertTimeout = this.alertTimeout - percent
+        }, timeToReloadVal);
+      }
+    },
+    alertClose: function () {
+      this.displayAlert = false
+      clearInterval(this.alertTimeoutIntervId)
+      this.alertTimeoutIntervId = null
     }
   },
   watch: {
-    'dataForm.origemLatitude.value' (newValue) {
-      if ( this.ruleLatitude(newValue).state ) {
+    displayAlert(new_val) {
+      const timeOut = 4000
+      if (new_val) {
+        this.alertRunTimeout(timeOut)
+        setTimeout(() => {
+          this.alertClose()
+        }, timeOut)
+      }
+    },
+    'dataForm.origemLatitude.value'(newValue) {
+      if (this.ruleLatitude(newValue).state) {
         this.dataForm.origemLatitude.status = this.ruleLatitude(newValue).state
         this.dataForm.origemLatitude.mess = this.ruleLatitude(newValue).message
         this.dataFormSnakeCase.origem_latitude = parseFloat(newValue)
@@ -155,8 +181,8 @@ export default {
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.origemLongitude.value' (newValue) {
-      if ( this.ruleLongitude(newValue).state ) {
+    'dataForm.origemLongitude.value'(newValue) {
+      if (this.ruleLongitude(newValue).state) {
         this.dataForm.origemLongitude.status = this.ruleLongitude(newValue).state
         this.dataForm.origemLongitude.mess = this.ruleLongitude(newValue).message
         this.dataFormSnakeCase.origem_longitude = parseFloat(newValue)
@@ -167,8 +193,8 @@ export default {
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.destinoLatitude.value' (newValue) {
-      if ( this.ruleLatitude(newValue).state ) {
+    'dataForm.destinoLatitude.value'(newValue) {
+      if (this.ruleLatitude(newValue).state) {
         this.dataForm.destinoLatitude.status = this.ruleLatitude(newValue).state
         this.dataForm.destinoLatitude.mess = this.ruleLatitude(newValue).message
         this.dataFormSnakeCase.destino_latitude = parseFloat(newValue)
@@ -179,8 +205,8 @@ export default {
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.destinoLongitude.value' (newValue) {
-      if ( this.ruleLongitude(newValue).state ) {
+    'dataForm.destinoLongitude.value'(newValue) {
+      if (this.ruleLongitude(newValue).state) {
         this.dataForm.destinoLongitude.status = this.ruleLongitude(newValue).state
         this.dataForm.destinoLongitude.mess = this.ruleLongitude(newValue).message
         this.dataFormSnakeCase.destino_longitude = parseFloat(newValue)
@@ -191,8 +217,8 @@ export default {
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.mediaConsumoVeiculo.value' (newValue) {
-      if ( this.ruleIsNumberPositive(newValue).state ) {
+    'dataForm.mediaConsumoVeiculo.value'(newValue) {
+      if (this.ruleIsNumberPositive(newValue).state) {
         this.dataForm.mediaConsumoVeiculo.status = this.ruleIsNumberPositive(newValue).state
         this.dataForm.mediaConsumoVeiculo.mess = this.ruleIsNumberPositive(newValue).message
         this.dataFormSnakeCase.media_consumo_veiculo = parseFloat(newValue)
@@ -203,7 +229,7 @@ export default {
       }
       this.dataFormIsValid = this.validarForm()
     },
-    'dataForm.idaEVolta.value' (newValue) {
+    'dataForm.idaEVolta.value'(newValue) {
       this.dataFormSnakeCase.ida_e_volta = newValue
     },
   }
@@ -215,28 +241,43 @@ export default {
     <v-container style="max-width: 1185px;">
       <v-alert :value="displayAlert" dismissible :color="alertColor" text outlined dense>
         {{ messageAlert }}
+    <v-progress-linear color="grey" :value="alertTimeout" reverse></v-progress-linear>
       </v-alert>
       <v-row class="g-5">
         <v-col sm="12" md="4">
           <v-card>
-              <v-img width="400" src="https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"></v-img>
-              <v-card-text v-if="!showRelatorioViagem" class="card-text">
-                Calcula a quantidade de combustível necessária para percorrer uma determinada distância
-                entre dois pontos, levando em consideração o consumo estimado do veículo.
+            <v-card-text v-if="!showRelatorioViagem" class="card-text">
+              Calcula a quantidade de combustível necessária para percorrer uma determinada distância
+              entre dois pontos, levando em consideração o consumo estimado do veículo.
+            </v-card-text>
+            <div v-else>
+              <v-card-text data-cy="reportCard">
+                <h2 v-if="relatorioViagem.ida_e_volta" class="mb-3">Para a viagem de ida e volta temos:</h2>
+                <h2 v-else class="mb-3">Para apenas a viagem de ida:</h2>
+                <h3 class="mb-1"><b>Combustível necessário:</b> {{ relatorioViagem.consumo_total_de_combustivel }} litros</h3>
+                <p><b>Distância:</b> {{ relatorioViagem.distancia_km }} Km</p>
+                <p><b>Principais vias da rota:</b></p>
+                <v-timeline align-top dense>
+                  <v-timeline-item color="pink" small>
+                    <v-row class="pt-1">
+                      <v-col>Origem
+                      </v-col>
+                    </v-row>
+                  </v-timeline-item>
+                  <v-timeline-item color="blue" small v-for="(via, index) in relatorioViagem.vias_da_rota" :key="index">
+                    <v-row class="pt-1"><v-col>{{ via }}</v-col></v-row>
+                  </v-timeline-item>
+                  <v-timeline-item color="green" small>
+                    <v-row class="pt-1">
+                      <v-col>Destino
+                      </v-col>
+                    </v-row>
+                  </v-timeline-item>
+                </v-timeline>
               </v-card-text>
-              <div v-else>
-                <v-card-text data-cy="reportCard">
-                  <p v-if="relatorioViagem.ida_e_volta" class="text-h6">Para a viagem de ida e volta temos:</p>
-                  <p v-else class="text-h6">Para apenas a viagem de ida:</p>
-                  <p><b>Distância:</b> {{ relatorioViagem.distancia_km }} Km</p>
-                  <p><b>Principais vias da rota:</b> {{ relatorioViagem.vias_da_rota }}</p>
-                  <p><b>Litros necessários:</b>
-                    {{ relatorioViagem.consumo_total_de_combustivel }}
-                    litros
-                  </p>
-                </v-card-text>
-              </div>
-
+            </div>
+            <v-img width="400"
+                   src="https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"></v-img>
           </v-card>
         </v-col>
         <v-col sm="12" md="8">
@@ -247,12 +288,16 @@ export default {
                 <label for="origemLatitude">Coordenadas da origem:</label>
               </v-col>
               <v-col class="col-12 col-md-6 col-lg-4">
-                <v-text-field label="Latitude da Origem" v-model="dataForm.origemLatitude.value" id="origemLatitude" dense
-                :error-messages="dataForm.origemLatitude.mess" :error="dataForm.origemLatitude.state"></v-text-field>
+                <v-text-field label="Latitude da Origem" v-model="dataForm.origemLatitude.value" id="origemLatitude"
+                              dense
+                              :error-messages="dataForm.origemLatitude.mess"
+                              :error="dataForm.origemLatitude.state"></v-text-field>
               </v-col>
               <v-col class="col-12 col-md-6 col-lg-4">
-                <v-text-field label="Longitude da Origem" v-model="dataForm.origemLongitude.value" id="origemLongitude" dense
-                :error-messages="dataForm.origemLongitude.mess" :error="dataForm.origemLongitude.state"></v-text-field>
+                <v-text-field label="Longitude da Origem" v-model="dataForm.origemLongitude.value" id="origemLongitude"
+                              dense
+                              :error-messages="dataForm.origemLongitude.mess"
+                              :error="dataForm.origemLongitude.state"></v-text-field>
               </v-col>
             </v-row>
 
@@ -261,12 +306,16 @@ export default {
                 <label for="destinoLatitude">Coordenadas do destino:</label>
               </v-col>
               <v-col class="col-12 col-md-6 col-lg-4">
-                <v-text-field label="Latitude do Destino" v-model="dataForm.destinoLatitude.value" id="destinoLatitude" dense
-                :error-messages="dataForm.destinoLatitude.mess" :error="dataForm.destinoLatitude.state"></v-text-field>
+                <v-text-field label="Latitude do Destino" v-model="dataForm.destinoLatitude.value" id="destinoLatitude"
+                              dense
+                              :error-messages="dataForm.destinoLatitude.mess"
+                              :error="dataForm.destinoLatitude.state"></v-text-field>
               </v-col>
               <v-col class="col-12 col-md-6 col-lg-4">
-                <v-text-field label="Longitude do Destino" v-model="dataForm.destinoLongitude.value" id="destinoLongitude" dense
-                :error-messages="dataForm.destinoLongitude.mess" :error="dataForm.destinoLongitude.state"></v-text-field>
+                <v-text-field label="Longitude do Destino" v-model="dataForm.destinoLongitude.value"
+                              id="destinoLongitude" dense
+                              :error-messages="dataForm.destinoLongitude.mess"
+                              :error="dataForm.destinoLongitude.state"></v-text-field>
               </v-col>
             </v-row>
 
@@ -274,7 +323,8 @@ export default {
               <v-col class="col-12 col-sm-12 col-md-6">
                 <label for="mediaConsumoVeiculo">Média de consumo do veículo:</label>
                 <v-text-field v-model="dataForm.mediaConsumoVeiculo.value" id="mediaConsumoVeiculo" dense type="number"
-                :error-messages="dataForm.mediaConsumoVeiculo.mess" :error="dataForm.mediaConsumoVeiculo.state"></v-text-field>
+                              :error-messages="dataForm.mediaConsumoVeiculo.mess"
+                              :error="dataForm.mediaConsumoVeiculo.state"></v-text-field>
               </v-col>
               <v-col class="col-12 col-sm-12 col-md-4">
                 <v-checkbox id="idaEVolta" label="Calcular ida e volta" v-model="dataForm.idaEVolta.value"></v-checkbox>
@@ -287,7 +337,8 @@ export default {
                   Limpar
                   <v-icon right>mdi-trash-can</v-icon>
                 </v-btn>
-                <v-btn type="submit" id="btnSubmitForm" data-cy="SubmitForm" color="success" :disabled="!dataFormIsValid">
+                <v-btn type="submit" id="btnSubmitForm" data-cy="SubmitForm" color="success"
+                       :disabled="!dataFormIsValid">
                   Enviar
                   <v-icon right>mdi-send</v-icon>
                 </v-btn>
@@ -305,7 +356,8 @@ export default {
 .cor-tertiary {
   background-color: rgba(248, 249, 250)
 }
-p{
+
+p {
   margin-bottom: 0.2rem;
 }
 </style>

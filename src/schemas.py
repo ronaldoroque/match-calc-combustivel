@@ -91,11 +91,11 @@ class RelatorioViagem(BaseModel):
 
     def format(self) -> dict[str]:
         distancia_km_str_br: str = self.float_to_str_br(self.float_rounded(self.distancia_km))
-        vias_da_rota_str: str = ", ".join(self.vias_da_rota)
+        # vias_da_rota_str: str = ", ".join(self.vias_da_rota)
         consumo_total_de_combustivel_str_br: str = self.float_to_str_br(self.float_rounded(self.consumo_total_de_combustivel))
         result = {
             'distancia_km': distancia_km_str_br,
-            'vias_da_rota': vias_da_rota_str,
+            'vias_da_rota': self.vias_da_rota,
             'consumo_total_de_combustivel': consumo_total_de_combustivel_str_br,
             'ida_e_volta': self.ida_e_volta,
         }
