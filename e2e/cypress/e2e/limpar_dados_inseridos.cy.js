@@ -1,9 +1,8 @@
 describe('template spec', () => {
   beforeEach('Entra no site', () => {
     cy.visit('/')
-    cy.wait(1000)
   })
-  it('Obter relatório de Viagem', () => {
+  it('Inserir dados e limpar', () => {
     const coordenadas = {
       origem_longitude: -41.9480517645751,
       origem_latitude: -18.9047485170197,

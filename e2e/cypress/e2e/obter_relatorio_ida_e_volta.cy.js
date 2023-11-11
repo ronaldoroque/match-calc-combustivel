@@ -1,7 +1,6 @@
 describe('template spec', () => {
   beforeEach('Entra no site', () => {
     cy.visit('/')
-    cy.wait(500)
   })
   it('Obter relatório de Viagem', () => {
     const coordenadas = {
@@ -18,7 +17,7 @@ describe('template spec', () => {
     cy.get('input[id=destinoLatitude]').type(coordenadas.destino_latitude)
     cy.get('input[id=destinoLongitude]').type(coordenadas.destino_longitude)
     cy.get('input[id=mediaConsumoVeiculo]').type(mediaConsumoVeiculo)
-    cy.wait(1000)
+    cy.wait(500)
 
     cy.get('input[id=idaEVolta]').parent().click()
 
