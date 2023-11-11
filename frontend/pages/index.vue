@@ -244,7 +244,7 @@ export default {
     <v-progress-linear color="grey" :value="alertTimeout" reverse></v-progress-linear>
       </v-alert>
       <v-row class="g-5">
-        <v-col sm="12" md="4">
+        <v-col sm="12" md="5">
           <v-card>
             <v-card-text v-if="!showRelatorioViagem" class="card-text">
               Calcula a quantidade de combustível necessária para percorrer uma determinada distância
@@ -276,11 +276,11 @@ export default {
                 </v-timeline>
               </v-card-text>
             </div>
-            <v-img width="400"
+            <v-img width="470"
                    src="https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"></v-img>
           </v-card>
         </v-col>
-        <v-col sm="12" md="8">
+        <v-col sm="12" md="7">
           <h4 class="mb-3">Informe os dados da viagem</h4>
           <v-form @submit.prevent="submeterFormViagem" @reset="resetarForm" novalidate>
             <v-row dense>
@@ -328,12 +328,13 @@ export default {
               </v-col>
               <v-col class="col-12 col-sm-12 col-md-4">
                 <v-checkbox id="idaEVolta" label="Calcular ida e volta" v-model="dataForm.idaEVolta.value"></v-checkbox>
+                <input type="hidden" data-cy="idaEVolta" :value="dataForm.idaEVolta.value">
               </v-col>
             </v-row>
 
             <v-row dense>
               <div class="">
-                <v-btn type="button" color="secundary" @click="resetarForm()">
+                <v-btn type="button" color="secundary" data-cy="resetForm" @click="resetarForm()">
                   Limpar
                   <v-icon right>mdi-trash-can</v-icon>
                 </v-btn>
