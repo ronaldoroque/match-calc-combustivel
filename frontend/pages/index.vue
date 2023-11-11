@@ -1,4 +1,5 @@
 <script>
+import rules from "@/utils/rules"
 
 export default {
   name: 'Index',
@@ -50,7 +51,7 @@ export default {
   },
   methods: {
     getUrlBackend: function () {
-      return process.env.NODE_ENV === 'production' ? 'https://match-calc-combustivel.vercel.app' : 'http://localhost:8000'
+      return process.env.NODE_ENV === 'production' ? 'https://match-calc-combustivel.vercel.app': 'http://localhost:8000'
     },
     submeterFormViagem: async function () {
       const endpoint = '/viagem'
@@ -82,66 +83,20 @@ export default {
     resetarForm: function () {
       this.dataForm = Object.assign({}, this.dataFormDefault)
     },
-    countDownChanged(dismissCountDown) {
-      this.dismissCountDown = dismissCountDown
-    },
     showAlert() {
       this.displayAlert = true
-    },
-    ruleLatitude: function (value) {
-      let state = true
-      let message = ""
-      const latitudeFloat = parseFloat(value)
-      if (isNaN(latitudeFloat)) {
-        state = false
-        message = 'Insira uma coordenada numérica.'
-      }
-      if (latitudeFloat < -90) {
-        state = false
-        message = 'A latitude não pode ser menor do que -90'
-      }
-      if (latitudeFloat > 90) {
-        state = false
-        message = 'A latitude não pode ser maior do que 90'
-      }
-      return {state, message}
-    },
-    ruleLongitude: function (value) {
-      let state = true
-      let message = ""
-      const longitudeFloat = parseFloat(value)
-      if (isNaN(longitudeFloat)) {
-        state = false
-        message = 'Insira uma coordenada numérica.'
-      }
-      if (longitudeFloat < -180) {
-        state = false
-        message = 'A longitude não pode ser menor do que -180'
-      }
-      if (longitudeFloat > 180) {
-        state = false
-        message = 'A longitude não pode ser maior do que 180'
-      }
-      return {state, message}
-    },
-    ruleIsNumberPositive: function (value) {
-      let state = true
-      let message = ""
-      const numFloat = parseFloat(value)
-      if (isNaN(numFloat)) {
-        state = false
-        message = 'Insira um valor numérico.'
-      }
-      if (numFloat <= 0) {
-        state = false
-        message = 'Insira um valor maior que zero.'
-      }
-      return {state, message}
     },
     validarForm: function () {
       return this.dataForm.origemLatitude.status && this.dataForm.origemLongitude.status &&
         this.dataForm.destinoLatitude.status && this.dataForm.destinoLongitude.status &&
         this.dataForm.mediaConsumoVeiculo.status
+    },
+    validarField: function (newValue, rule, field, fieldSnakeCase) {
+      const validationResult = rule(newValue)
+      field.status = validationResult.state
+      field.mess = validationResult.message
+      this.dataFormIsValid = this.validarForm()
+      return validationResult
     },
     alertRunTimeout: function (timeOut) {
       const resolution = 30
@@ -170,64 +125,24 @@ export default {
       }
     },
     'dataForm.origemLatitude.value'(newValue) {
-      if (this.ruleLatitude(newValue).state) {
-        this.dataForm.origemLatitude.status = this.ruleLatitude(newValue).state
-        this.dataForm.origemLatitude.mess = this.ruleLatitude(newValue).message
-        this.dataFormSnakeCase.origem_latitude = parseFloat(newValue)
-      } else {
-        this.dataForm.origemLatitude.status = this.ruleLatitude(newValue).state
-        this.dataForm.origemLatitude.mess = this.ruleLatitude(newValue).message
-        this.dataFormSnakeCase.origem_latitude = null
-      }
-      this.dataFormIsValid = this.validarForm()
+      const validationResult = this.validarField(newValue, rules.ruleLatitude, this.dataForm.origemLatitude)
+      this.dataFormSnakeCase.origem_latitude = validationResult.valueClear
     },
     'dataForm.origemLongitude.value'(newValue) {
-      if (this.ruleLongitude(newValue).state) {
-        this.dataForm.origemLongitude.status = this.ruleLongitude(newValue).state
-        this.dataForm.origemLongitude.mess = this.ruleLongitude(newValue).message
-        this.dataFormSnakeCase.origem_longitude = parseFloat(newValue)
-      } else {
-        this.dataForm.origemLongitude.status = this.ruleLongitude(newValue).state
-        this.dataForm.origemLongitude.mess = this.ruleLongitude(newValue).message
-        this.dataFormSnakeCase.origem_longitude = null
-      }
-      this.dataFormIsValid = this.validarForm()
+      const validationResult = this.validarField(newValue, rules.ruleLongitude, this.dataForm.origemLongitude)
+      this.dataFormSnakeCase.origem_longitude = validationResult.valueClear
     },
     'dataForm.destinoLatitude.value'(newValue) {
-      if (this.ruleLatitude(newValue).state) {
-        this.dataForm.destinoLatitude.status = this.ruleLatitude(newValue).state
-        this.dataForm.destinoLatitude.mess = this.ruleLatitude(newValue).message
-        this.dataFormSnakeCase.destino_latitude = parseFloat(newValue)
-      } else {
-        this.dataForm.destinoLatitude.status = this.ruleLatitude(newValue).state
-        this.dataForm.destinoLatitude.mess = this.ruleLatitude(newValue).message
-        this.dataFormSnakeCase.destino_latitude = null
-      }
-      this.dataFormIsValid = this.validarForm()
+      const validationResult = this.validarField(newValue, rules.ruleLatitude, this.dataForm.destinoLatitude)
+      this.dataFormSnakeCase.destino_latitude = validationResult.valueClear
     },
     'dataForm.destinoLongitude.value'(newValue) {
-      if (this.ruleLongitude(newValue).state) {
-        this.dataForm.destinoLongitude.status = this.ruleLongitude(newValue).state
-        this.dataForm.destinoLongitude.mess = this.ruleLongitude(newValue).message
-        this.dataFormSnakeCase.destino_longitude = parseFloat(newValue)
-      } else {
-        this.dataForm.destinoLongitude.status = this.ruleLongitude(newValue).state
-        this.dataForm.destinoLongitude.mess = this.ruleLongitude(newValue).message
-        this.dataFormSnakeCase.destino_longitude = null
-      }
-      this.dataFormIsValid = this.validarForm()
+      const validationResult = this.validarField(newValue, rules.ruleLongitude, this.dataForm.destinoLongitude)
+      this.dataFormSnakeCase.destino_longitude = validationResult.valueClear
     },
     'dataForm.mediaConsumoVeiculo.value'(newValue) {
-      if (this.ruleIsNumberPositive(newValue).state) {
-        this.dataForm.mediaConsumoVeiculo.status = this.ruleIsNumberPositive(newValue).state
-        this.dataForm.mediaConsumoVeiculo.mess = this.ruleIsNumberPositive(newValue).message
-        this.dataFormSnakeCase.media_consumo_veiculo = parseFloat(newValue)
-      } else {
-        this.dataForm.mediaConsumoVeiculo.status = this.ruleIsNumberPositive(newValue).state
-        this.dataForm.mediaConsumoVeiculo.mess = this.ruleIsNumberPositive(newValue).message
-        this.dataFormSnakeCase.media_consumo_veiculo = null
-      }
-      this.dataFormIsValid = this.validarForm()
+      const validationResult = this.validarField(newValue, rules.ruleIsNumberPositive, this.dataForm.mediaConsumoVeiculo)
+      this.dataFormSnakeCase.media_consumo_veiculo = validationResult.valueClear
     },
     'dataForm.idaEVolta.value'(newValue) {
       this.dataFormSnakeCase.ida_e_volta = newValue
