@@ -172,23 +172,14 @@ export default {
                 <h3 class="mb-1"><b>Combustível necessário:</b> {{ relatorioViagem.consumo_total_de_combustivel }} litros</h3>
                 <p><b>Distância:</b> {{ relatorioViagem.distancia_km }} Km</p>
                 <p><b>Principais vias da rota:</b></p>
+
                 <v-timeline align-top dense>
-                  <v-timeline-item color="pink" small>
-                    <v-row class="pt-1">
-                      <v-col>Origem
-                      </v-col>
-                    </v-row>
-                  </v-timeline-item>
-                  <v-timeline-item color="blue" small v-for="(via, index) in relatorioViagem.vias_da_rota" :key="index">
-                    <v-row class="pt-1"><v-col>{{ via }}</v-col></v-row>
-                  </v-timeline-item>
-                  <v-timeline-item color="green" small>
-                    <v-row class="pt-1">
-                      <v-col>Destino
-                      </v-col>
-                    </v-row>
+                  <v-timeline-item small v-for="(place, index) in relatorioViagem.vias_da_rota" :key="index"
+                               :color="place.type === 'origem'? 'pink': ( place.type === 'destino'? 'green': 'blue')" >
+                    <v-row class="pt-1"><v-col>{{ place.name }}</v-col></v-row>
                   </v-timeline-item>
                 </v-timeline>
+
               </v-card-text>
             </div>
             <v-img width="470"

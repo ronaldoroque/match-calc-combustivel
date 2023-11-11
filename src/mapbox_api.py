@@ -10,7 +10,7 @@ async def get_route(viagem: Viagem) -> Route:
     if viagem.origem_longitude == viagem.destino_longitude and viagem.origem_latitude == viagem.destino_latitude:
         mess = "As coordenadas de origem e destino fornecidas são iguais. Por favor, verifique a digitação."
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=mess)
-    endpoint_mapbox = f"https://api.mapbox.com/directions/v5/mapbox/driving"
+    endpoint_mapbox = "https://api.mapbox.com/directions/v5/mapbox/driving"
     params = {
         'geometries': "geojson",
         'access_token': settings().mapbox_access_token,
@@ -36,6 +36,19 @@ async def get_route(viagem: Viagem) -> Route:
         mess = "Não foi possível encontrar uma rota com base nas coordenadas fornecidas. Verifique se os valores foram digitados corretamente."
         raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
     route = Route(**response['routes'][0])
+    return route
+
+
+async def get_place(longitude: float, latitude: float) -> str:
+    endpoint_mapbox = "https://api.mapbox.com/search/geocode/v6/reverse"
+    params = {
+        'longitude': longitude,
+        'latitude': latitude,
+        'access_token': settings().mapbox_access_token,
+    }
+    mapbox_return = get(url=endpoint_mapbox, params=params)
+    response = mapbox_return.json()
+    route: str = response['features'][0]['properties']['name']
     return route
 
 
@@ -69,15 +82,24 @@ def join_ida_e_volta(relatorio_ida: RelatorioViagem, relatorio_volta: RelatorioV
                            consumo_total_de_combustivel=consumo_total_de_combustivel_ida_e_volta, ida_e_volta=True)
 
 
-def identifica_origen_e_destino(viagem: RelatorioViagem) -> RelatorioViagem:
-    return viagem
+async def identifica_origen_destino_e_percurso(relatorio_viagem: RelatorioViagem, viagem: Viagem) -> RelatorioViagem:
+    place_origem = await get_place(longitude=viagem.origem_longitude, latitude=viagem.origem_latitude)
+    place_destino = await get_place(longitude=viagem.destino_longitude, latitude=viagem.destino_latitude)
+    for index, route_point in enumerate(relatorio_viagem.vias_da_rota):
+        if route_point == "<origem>":
+            relatorio_viagem.vias_da_rota[index] = {'type': "origem", 'name': place_origem}
+        elif route_point == "<destino>":
+            relatorio_viagem.vias_da_rota[index] = {'type': "destino", 'name': place_destino}
+        else:
+            relatorio_viagem.vias_da_rota[index] = {'type': "percurso", 'name': route_point}
+    return relatorio_viagem
 
 
 async def calcula_viagem(viagem: Viagem) -> RelatorioViagem:
     relatorio_ida: RelatorioViagem = await get_relatorio(viagem)
     if not viagem.ida_e_volta:
-        return identifica_origen_e_destino(relatorio_ida)
+        return await identifica_origen_destino_e_percurso(relatorio_ida, viagem)
     viagem_volta: Viagem = invert_viagem(viagem)
     relatorio_volta: RelatorioViagem = await get_relatorio(viagem_volta)
     relatorio_ida_e_volta: RelatorioViagem = join_ida_e_volta(relatorio_ida=relatorio_ida, relatorio_volta=relatorio_volta)
-    return identifica_origen_e_destino(relatorio_ida_e_volta)
+    return await identifica_origen_destino_e_percurso(relatorio_ida_e_volta, viagem)

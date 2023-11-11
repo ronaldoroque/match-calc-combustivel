@@ -79,7 +79,7 @@ class Route(BaseModel):
 
 class RelatorioViagem(BaseModel):
     distancia_km: Optional[float] = None
-    vias_da_rota: Optional[list[str]] = []
+    vias_da_rota: Optional[list[Union[str, dict]]] = []
     consumo_total_de_combustivel: Optional[float] = None
     ida_e_volta: Optional[bool] = False
 
