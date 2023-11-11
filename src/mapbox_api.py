@@ -41,7 +41,8 @@ async def get_route(viagem: Viagem) -> Route:
 
 async def get_relatorio(viagem: Viagem) -> RelatorioViagem:
     route: Route = await get_route(viagem=viagem)
-    vias_da_rota: list = route.legs[0].summary
+    route_summary: list = route.legs[0].summary
+    vias_da_rota: list = ["<origem>", *route_summary, "<destino>"]
     distancia_km: float = route.distance / 1000
     consumo_total_de_combustivel = 0.0
     if viagem.media_consumo_veiculo != 0.0:
@@ -58,17 +59,25 @@ def invert_viagem(viagem: Viagem) -> Viagem:
 
 def join_ida_e_volta(relatorio_ida: RelatorioViagem, relatorio_volta: RelatorioViagem) -> RelatorioViagem:
     distancia_ida_e_volta: float = relatorio_ida.distancia_km + relatorio_volta.distancia_km
-    vias_da_rota_ida_e_volta: list = list(set(relatorio_ida.vias_da_rota + relatorio_volta.vias_da_rota))
+    if relatorio_volta.vias_da_rota[0] == "<origem>":
+        del relatorio_volta.vias_da_rota[0]
+    if relatorio_volta.vias_da_rota[-1] == "<destino>":
+        del relatorio_volta.vias_da_rota[-1]
+    vias_da_rota_ida_e_volta: list[str] = [*relatorio_ida.vias_da_rota, *relatorio_volta.vias_da_rota, "<origem>"]
     consumo_total_de_combustivel_ida_e_volta: float = relatorio_ida.consumo_total_de_combustivel + relatorio_volta.consumo_total_de_combustivel
     return RelatorioViagem(distancia_km=distancia_ida_e_volta, vias_da_rota=vias_da_rota_ida_e_volta,
                            consumo_total_de_combustivel=consumo_total_de_combustivel_ida_e_volta, ida_e_volta=True)
 
 
+def identifica_origen_e_destino(viagem: RelatorioViagem) -> RelatorioViagem:
+    return viagem
+
+
 async def calcula_viagem(viagem: Viagem) -> RelatorioViagem:
     relatorio_ida: RelatorioViagem = await get_relatorio(viagem)
     if not viagem.ida_e_volta:
-        return relatorio_ida
+        return identifica_origen_e_destino(relatorio_ida)
     viagem_volta: Viagem = invert_viagem(viagem)
     relatorio_volta: RelatorioViagem = await get_relatorio(viagem_volta)
     relatorio_ida_e_volta: RelatorioViagem = join_ida_e_volta(relatorio_ida=relatorio_ida, relatorio_volta=relatorio_volta)
-    return relatorio_ida_e_volta
+    return identifica_origen_e_destino(relatorio_ida_e_volta)
