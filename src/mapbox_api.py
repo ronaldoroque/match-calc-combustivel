@@ -1,6 +1,7 @@
 from http import HTTPStatus
-from requests import get
+from requests import get, Response as Requests_Response
 from fastapi import HTTPException
+from fastapi.responses import Response as Fastapi_Response
 
 from src.config import get_settings as settings
 from .schemas import *
@@ -52,6 +53,17 @@ async def get_place(longitude: float, latitude: float) -> str:
     return route
 
 
+async def get_map_image(longitude: float, latitude: float, zoom: float = 13.0, width: int = 470, height: int = 470) -> Fastapi_Response:
+    endpoint_mapbox = "https://api.mapbox.com/styles/v1/mapbox/streets-v12/static"
+    url = f"{endpoint_mapbox}/{longitude},{latitude},{zoom}/{width}x{height}"
+    params = {
+        'access_token': settings().mapbox_access_token,
+    }
+    mapbox_return: Requests_Response = get(url=url, params=params)
+    result = Fastapi_Response(content=mapbox_return.content, media_type=mapbox_return.headers._store['content-type'][1])
+    return result
+
+
 async def get_relatorio(viagem: Viagem) -> RelatorioViagem:
     route: Route = await get_route(viagem=viagem)
     route_summary: list = route.legs[0].summary
@@ -96,6 +108,7 @@ async def identifica_origen_destino_e_percurso(relatorio_viagem: RelatorioViagem
 
 
 async def calcula_viagem(viagem: Viagem) -> RelatorioViagem:
+    image_binary = await get_map_image(longitude=viagem.destino_longitude, latitude=viagem.destino_latitude)
     relatorio_ida: RelatorioViagem = await get_relatorio(viagem)
     if not viagem.ida_e_volta:
         return await identifica_origen_destino_e_percurso(relatorio_ida, viagem)

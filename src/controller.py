@@ -1,8 +1,7 @@
 from fastapi import Request, Form, APIRouter
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.templating import Jinja2Templates
 
-from .schemas import *
 from .mapbox_api import *
 
 templates = Jinja2Templates(directory="templates")
@@ -39,3 +38,8 @@ async def post_data_viagem(viagem: Viagem):
     relatorio_viagem: RelatorioViagem = await calcula_viagem(viagem)
     relatorio_viagem_formatado: dict = relatorio_viagem.format()
     return relatorio_viagem_formatado
+
+
+@router.get("/destino_imagem", response_class=Response)
+async def destino_imagem(longitude: float, latitude: float):
+    return await get_map_image(longitude=longitude, latitude=latitude)

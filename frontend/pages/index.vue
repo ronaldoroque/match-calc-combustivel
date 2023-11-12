@@ -46,24 +46,29 @@ export default {
         destino_longitude: null,
         media_consumo_veiculo: null,
         ida_e_volta: false
-      }
+      },
+      imageUrl: "https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"
     }
   },
   methods: {
     getUrlBackend: function () {
       return process.env.NODE_ENV === 'production' ? 'https://match-calc-combustivel.vercel.app': 'http://localhost:8000'
     },
+    changeUrlImagemDestino: function (longitude, latitude) {
+      const urlBackend = this.getUrlBackend()
+      this.imageUrl = `${urlBackend}/destino_imagem?longitude=${longitude}&latitude=${latitude}`
+    },
     submeterFormViagem: async function () {
       const endpoint = '/viagem'
       const baseUrlBackend = this.getUrlBackend()
       await this.$axios.post(baseUrlBackend + endpoint, this.dataFormSnakeCase).then((response) => {
         if (response.status === 200) {
-          console.log(response)
           this.relatorioViagem = response.data
           this.showRelatorioViagem = true
           this.messageAlert = 'Relatório de Viagem recebido com sucesso.'
           this.alertColor = 'success'
           this.showAlert()
+          this.changeUrlImagemDestino(this.dataFormSnakeCase.destino_longitude, this.dataFormSnakeCase.destino_latitude)
         }
       }).catch((error) => {
         console.log(error)
@@ -182,8 +187,7 @@ export default {
 
               </v-card-text>
             </div>
-            <v-img width="470"
-                   src="https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"></v-img>
+            <v-img width="470"  :src="imageUrl"></v-img>
           </v-card>
         </v-col>
         <v-col sm="12" md="7">
