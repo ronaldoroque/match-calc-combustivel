@@ -32,7 +32,7 @@
         ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div/div[2]/div/input", "xpath:idRelative"],
         ["xpath=//input", "xpath:position"]
       ],
-      "value": "-20.024763192098714"
+      "value": "-19.93023989223638"
     }, {
       "id": "569a9808-3bf0-4b26-b067-197ba281c195",
       "comment": "",
@@ -45,7 +45,7 @@
         ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div/div[3]/div/input", "xpath:idRelative"],
         ["xpath=//div[3]/div/input", "xpath:position"]
       ],
-      "value": "-44.02842805912924"
+      "value": "-43.938014880612535"
     }, {
       "id": "0b819d13-1672-414c-ab30-a06d08c94948",
       "comment": "",
@@ -58,7 +58,7 @@
         ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[2]/div[2]/div/input", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/input", "xpath:position"]
       ],
-      "value": "-19.874692505512705"
+      "value": "-19.86932339367932"
     }, {
       "id": "fe38ce9e-6ffb-4e35-86d5-03c9ba11fd09",
       "comment": "",
@@ -71,7 +71,7 @@
         ["xpath=//div[@id='__layout']/div/div[2]/div/div/div[2]/form/div[2]/div[3]/div/input", "xpath:idRelative"],
         ["xpath=//div[2]/div[3]/div/input", "xpath:position"]
       ],
-      "value": "-43.98276918932597"
+      "value": "-43.96455878954103"
     }, {
       "id": "d5859e09-141f-41c8-ac07-396887715685",
       "comment": "",

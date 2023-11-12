@@ -34,12 +34,16 @@ async def home_view_with_post(request: Request, origem_longitude: float = Form(.
 
 
 @router.post("/viagem", response_class=JSONResponse)
-async def post_data_viagem(viagem: Viagem):
+async def post_data_viagem(viagem: Viagem) -> dict:
+    """ Obter um relatório da viagem """
     relatorio_viagem: RelatorioViagem = await calcula_viagem(viagem)
     relatorio_viagem_formatado: dict = relatorio_viagem.format()
     return relatorio_viagem_formatado
 
 
 @router.get("/destino_imagem", response_class=Response)
-async def destino_imagem(longitude: float, latitude: float):
-    return await get_map_image(longitude=longitude, latitude=latitude)
+async def destino_imagem(origem_longitude: float, origem_latitude, destino_longitude: float, destino_latitude: float, geometry: Optional[str] = None) -> Response:
+    """ Obtem a imagem do mapa pela API do Mapbox """
+    coordenadas = Coordenadas(origem_longitude=origem_longitude, origem_latitude=origem_latitude,
+                              destino_longitude=destino_longitude, destino_latitude=destino_latitude, geometry=geometry)
+    return await get_map_image(coordenadas=coordenadas)

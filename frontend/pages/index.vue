@@ -37,7 +37,8 @@ export default {
         consumo_total_de_combustivel: '',
         distancia_km: '',
         vias_da_rota: [],
-        ida_e_volta: null
+        ida_e_volta: null,
+        geometry: "",
       },
       dataFormSnakeCase: {
         origem_latitude: null,
@@ -51,14 +52,23 @@ export default {
     }
   },
   methods: {
+    attribImageInit: function () {
+      this.imageUrl = "https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"
+    },
     getUrlBackend: function () {
       return process.env.NODE_ENV === 'production' ? 'https://match-calc-combustivel.vercel.app': 'http://localhost:8000'
     },
-    changeUrlImagemDestino: function (longitude, latitude) {
+    changeUrlImagemDestino: function () {
       const urlBackend = this.getUrlBackend()
-      this.imageUrl = `${urlBackend}/destino_imagem?longitude=${longitude}&latitude=${latitude}`
+      const get_origem_longitude = `origem_longitude=${this.dataFormSnakeCase.origem_longitude}`
+      const get_origem_latitude = `origem_latitude=${this.dataFormSnakeCase.origem_latitude}`
+      const get_destino_latitude = `destino_latitude=${this.dataFormSnakeCase.destino_latitude}`
+      const get_destino_longitude = `destino_longitude=${this.dataFormSnakeCase.destino_longitude}`
+      const get_geometry = `geometry=${this.relatorioViagem.geometry}`
+      this.imageUrl = `${urlBackend}/destino_imagem?${get_geometry}&${get_origem_longitude}&${get_origem_latitude}&${get_destino_latitude}&${get_destino_longitude}`
     },
     submeterFormViagem: async function () {
+      this.attribImageInit()
       const endpoint = '/viagem'
       const baseUrlBackend = this.getUrlBackend()
       await this.$axios.post(baseUrlBackend + endpoint, this.dataFormSnakeCase).then((response) => {
@@ -68,7 +78,7 @@ export default {
           this.messageAlert = 'Relatório de Viagem recebido com sucesso.'
           this.alertColor = 'success'
           this.showAlert()
-          this.changeUrlImagemDestino(this.dataFormSnakeCase.destino_longitude, this.dataFormSnakeCase.destino_latitude)
+          this.changeUrlImagemDestino()
         }
       }).catch((error) => {
         console.log(error)
@@ -187,7 +197,7 @@ export default {
 
               </v-card-text>
             </div>
-            <v-img width="470"  :src="imageUrl"></v-img>
+            <v-img width="470" height="300" :src="imageUrl"></v-img>
           </v-card>
         </v-col>
         <v-col sm="12" md="7">

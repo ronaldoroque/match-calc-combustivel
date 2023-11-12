@@ -1,4 +1,6 @@
 from http import HTTPStatus
+from statistics import geometric_mean
+
 from requests import get, Response as Requests_Response
 from fastapi import HTTPException
 from fastapi.responses import Response as Fastapi_Response
@@ -7,13 +9,13 @@ from src.config import get_settings as settings
 from .schemas import *
 
 
-async def get_route(viagem: Viagem) -> Route:
+async def get_route(viagem: Viagem, geometries: str = "polyline") -> Route:
     if viagem.origem_longitude == viagem.destino_longitude and viagem.origem_latitude == viagem.destino_latitude:
         mess = "As coordenadas de origem e destino fornecidas são iguais. Por favor, verifique a digitação."
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=mess)
     endpoint_mapbox = "https://api.mapbox.com/directions/v5/mapbox/driving"
     params = {
-        'geometries': "geojson",
+        'geometries': geometries,
         'access_token': settings().mapbox_access_token,
     }
     url = f"{endpoint_mapbox}/{viagem.get_coodernadas_to_str()}"
@@ -38,7 +40,7 @@ async def get_route(viagem: Viagem) -> Route:
     return route
 
 
-async def get_place(longitude: float, latitude: float) -> str:
+async def get_place_name(longitude: float, latitude: float) -> str:
     endpoint_mapbox = "https://api.mapbox.com/search/geocode/v6/reverse"
     params = {
         'longitude': longitude,
@@ -51,13 +53,24 @@ async def get_place(longitude: float, latitude: float) -> str:
     return route
 
 
-async def get_map_image(longitude: float, latitude: float, zoom: float = 13.0, width: int = 470, height: int = 470) -> Fastapi_Response:
+async def get_map_image(coordenadas: Coordenadas, zoom: float = 15.0, width: int = 470, height: int = 300) -> Fastapi_Response:
     endpoint_mapbox = "https://api.mapbox.com/styles/v1/mapbox/streets-v12/static"
-    url = f"{endpoint_mapbox}/{longitude},{latitude},{zoom}/{width}x{height}"
+    pino_a = f"pin-s-a+ff3348({coordenadas.origem_longitude},{coordenadas.origem_latitude})"
+    pino_b = f"pin-s-b+589294({coordenadas.destino_longitude},{coordenadas.destino_latitude})"
+    path = f"path-5+f44-0.5({coordenadas.geometry})"
+    # URL para mapa apenas do destino:
+    if coordenadas.geometry is None:
+        url = f"{endpoint_mapbox}/{pino_b}/{coordenadas.destino_longitude},{coordenadas.destino_latitude},{zoom}/{width}x{height}"
+    # URL para mapa com pontos de origem e destino e a rota:
+    else:
+        url = f"{endpoint_mapbox}/{pino_a},{pino_b},{path}/auto/{width}x{height}"
     params = {
         'access_token': settings().mapbox_access_token,
     }
     mapbox_return: Requests_Response = get(url=url, params=params)
+    if mapbox_return.status_code == 422:
+        message = mapbox_return.json()['message']
+        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=message)
     result = Fastapi_Response(content=mapbox_return.content, media_type=mapbox_return.headers._store['content-type'][1])
     return result
 
@@ -70,7 +83,9 @@ async def get_relatorio(viagem: Viagem) -> RelatorioViagem:
     consumo_total_de_combustivel = 0.0
     if viagem.media_consumo_veiculo != 0.0:
         consumo_total_de_combustivel: float = distancia_km / viagem.media_consumo_veiculo
-    relatorio_de_viagem = RelatorioViagem(distancia_km=distancia_km, vias_da_rota=vias_da_rota, consumo_total_de_combustivel=consumo_total_de_combustivel)
+    relatorio_de_viagem = RelatorioViagem(distancia_km=distancia_km, vias_da_rota=vias_da_rota,
+                                          consumo_total_de_combustivel=consumo_total_de_combustivel,
+                                          geometry=route.geometry)
     return relatorio_de_viagem
 
 
@@ -89,12 +104,13 @@ def join_ida_e_volta(relatorio_ida: RelatorioViagem, relatorio_volta: RelatorioV
     vias_da_rota_ida_e_volta: list[str] = [*relatorio_ida.vias_da_rota, *relatorio_volta.vias_da_rota, "<origem>"]
     consumo_total_de_combustivel_ida_e_volta: float = relatorio_ida.consumo_total_de_combustivel + relatorio_volta.consumo_total_de_combustivel
     return RelatorioViagem(distancia_km=distancia_ida_e_volta, vias_da_rota=vias_da_rota_ida_e_volta,
-                           consumo_total_de_combustivel=consumo_total_de_combustivel_ida_e_volta, ida_e_volta=True)
+                           consumo_total_de_combustivel=consumo_total_de_combustivel_ida_e_volta,
+                           ida_e_volta=True, geometry=relatorio_ida.geometry)
 
 
 async def identifica_origen_destino_e_percurso(relatorio_viagem: RelatorioViagem, viagem: Viagem) -> RelatorioViagem:
-    place_origem = await get_place(longitude=viagem.origem_longitude, latitude=viagem.origem_latitude)
-    place_destino = await get_place(longitude=viagem.destino_longitude, latitude=viagem.destino_latitude)
+    place_origem = await get_place_name(longitude=viagem.origem_longitude, latitude=viagem.origem_latitude)
+    place_destino = await get_place_name(longitude=viagem.destino_longitude, latitude=viagem.destino_latitude)
     for index, route_point in enumerate(relatorio_viagem.vias_da_rota):
         if route_point == "<origem>":
             relatorio_viagem.vias_da_rota[index] = {'type': "origem", 'name': place_origem}
@@ -106,7 +122,6 @@ async def identifica_origen_destino_e_percurso(relatorio_viagem: RelatorioViagem
 
 
 async def calcula_viagem(viagem: Viagem) -> RelatorioViagem:
-    image_binary = await get_map_image(longitude=viagem.destino_longitude, latitude=viagem.destino_latitude)
     relatorio_ida: RelatorioViagem = await get_relatorio(viagem)
     if not viagem.ida_e_volta:
         return await identifica_origen_destino_e_percurso(relatorio_ida, viagem)
