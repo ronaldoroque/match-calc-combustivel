@@ -19,7 +19,7 @@ async def get_route(viagem: Viagem) -> Route:
     url = f"{endpoint_mapbox}/{viagem.get_coodernadas_to_str()}"
     mapbox_return = get(url=url, params=params)
     response = mapbox_return.json()
-    if 'code' in response and response['code'] == 'NoSegment' or response['code'] == 'InvalidInput':
+    if 'code' in response and (response['code'] == 'NoSegment' or response['code'] == 'InvalidInput'):
         mess = "Não foi possível encontrar uma rota com base nas coordenadas fornecidas. Verifique se os valores foram digitados corretamente."
         raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
     try:
