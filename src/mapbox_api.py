@@ -22,9 +22,7 @@ async def get_route(viagem: Viagem) -> Route:
     if 'code' in response and (response['code'] == 'NoSegment' or response['code'] == 'InvalidInput'):
         mess = "Não foi possível encontrar uma rota com base nas coordenadas fornecidas. Verifique se os valores foram digitados corretamente."
         raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
-    try:
-        endereco = response['routes'][0]['legs'][0]['summary']
-    except KeyError as erro:
+    if 'routes' not in response:
         if max(viagem.origem_longitude, viagem.destino_longitude) > 90.0 or \
                 min(viagem.origem_longitude, viagem.destino_longitude) < -90.0:
             raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
@@ -33,9 +31,9 @@ async def get_route(viagem: Viagem) -> Route:
                 min(viagem.origem_latitude, viagem.destino_latitude) < -180.0:
             raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
                                 detail="Verifique se os valores de Latitude foram digitados corretamente.")
-    except IndexError as erro:
-        mess = "Não foi possível encontrar uma rota com base nas coordenadas fornecidas. Verifique se os valores foram digitados corretamente."
-        raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
+        else:
+            mess = "Não foi possível encontrar uma rota com base nas coordenadas fornecidas. Verifique se os valores foram digitados corretamente."
+            raise HTTPException(status_code=HTTPStatus.UNPROCESSABLE_ENTITY, detail=mess)
     route = Route(**response['routes'][0])
     return route
 
