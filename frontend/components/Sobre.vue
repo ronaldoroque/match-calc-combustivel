@@ -26,11 +26,11 @@ export default {
         <v-card-subtitle class="white--text">Participantes</v-card-subtitle>
         <v-card-text>
           <ul class="list-unstyled">
-            <li><a href="https://www.linkedin.com/in/andrade-rog" class="text-light border-bottom">
+            <li><a href="https://www.linkedin.com/in/andrade-rog" class="text-light border-bottom text_white">
               Rogério Andrade
               <v-icon class="ml-2" small>mdi-linkedin</v-icon>
             </a></li>
-            <li><a href="https://www.linkedin.com/in/doroque" class="text-light border-bottom">
+            <li><a href="https://www.linkedin.com/in/doroque" class="text-light border-bottom text_white">
               Ronaldo Roque
               <v-icon class="ml-2" small>mdi-linkedin</v-icon>
             </a></li>
@@ -42,7 +42,7 @@ export default {
 </template>
 
 <style scoped>
-a, .text_white{
+.text_white{
   color: #fff;
 }
 </style>
