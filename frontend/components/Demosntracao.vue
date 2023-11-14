@@ -30,7 +30,14 @@ export default {
 <template>
   <v-row v-if="display" dense class="pb-2">
 
-    <v-tabs v-model="tab" background-color="transparent" dark>
+    <v-tabs v-model="tab" background-color="transparent"
+        dark
+        next-icon= "mdi-arrow-right-bold-circle"
+        prev-icon= "mdi-arrow-left-bold-circle"
+        show-arrows
+
+    >
+
       <v-tab v-for="(video, key) in videoIdList" :key="key">
         {{ video.title }}
       </v-tab>

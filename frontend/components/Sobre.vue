@@ -15,7 +15,7 @@ export default {
         <v-card-text>
           <span class="text_white">
           Neste projeto, os participantes criaram uma aplicação em Python que calcula a quantidade de
-          combustível necessária para percorrer uma determinada distância entre dois pontos geográfica,
+          combustível necessária para percorrer uma determinada distância entre dois pontos geográficos,
           levando em consideração o consumo médio de combustível do veículo.
           </span>
         </v-card-text>
