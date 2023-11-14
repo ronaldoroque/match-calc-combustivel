@@ -62,7 +62,7 @@ export default {
   pwa: {
     manifest: {
       lang: 'pt-Br',
-      name: 'calc. Combustível',
+      name: 'Calc. Combustível',
       short_name: 'Calc. Combustível',
       description: 'Calculadora de Combustível',
       background_color: '#fff',
@@ -87,7 +87,18 @@ export default {
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
-          success: colors.green.accent3
+          success: colors.teal.darken3,
+          dark_green: colors.teal.darken4
+        },
+        light: {
+          primary: colors.teal.darken4,
+          accent: colors.grey.darken3,
+          secondary: colors.amber.darken3,
+          info: colors.teal.lighten1,
+          warning: colors.amber.base,
+          error: colors.deepOrange.accent4,
+          success: colors.teal.darken3,
+          dark_green: colors.teal.darken4
         }
       }
     }

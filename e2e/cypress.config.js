@@ -7,7 +7,8 @@ module.exports = defineConfig({
   videosFolder: 'cypress/videos',
   videoCompression: true,
   e2e: {
-    baseUrl: 'http://localhost:3000/match-calc-combustivel/',
+    // baseUrl: 'http://localhost:3000/match-calc-combustivel/',
+    baseUrl: 'https://ronaldoroque.github.io/match-calc-combustivel',
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },

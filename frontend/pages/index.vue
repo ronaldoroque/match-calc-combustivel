@@ -48,12 +48,12 @@ export default {
         media_consumo_veiculo: null,
         ida_e_volta: false
       },
-      imageUrl: "https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"
+      imageUrl: "initial-map.png"
     }
   },
   methods: {
     attribImageInit: function () {
-      this.imageUrl = "https://img.freepik.com/vetores-premium/ilustracao-do-mapa-da-cidade-para-o-aplicativo-de-navegacao_8276-371.jpg?w=400"
+      this.imageUrl = "initial-map.png"
     },
     getUrlBackend: function () {
       return process.env.NODE_ENV === 'production' ? 'https://match-calc-combustivel.vercel.app': 'http://localhost:8000'
@@ -167,7 +167,7 @@ export default {
 </script>
 
 <template>
-  <div class="cor-tertiary w-100">
+  <div class="w-100">
     <v-container style="max-width: 1185px;">
       <v-alert :value="displayAlert" dismissible :color="alertColor" text outlined dense>
         {{ messageAlert }}
@@ -254,7 +254,7 @@ export default {
 
             <v-row dense>
               <div class="">
-                <v-btn type="button" color="secundary" data-cy="resetForm" @click="resetarForm()">
+                <v-btn type="button" color="transparent" data-cy="resetForm" @click="resetarForm()" small>
                   Limpar
                   <v-icon right>mdi-trash-can</v-icon>
                 </v-btn>
@@ -274,10 +274,6 @@ export default {
 </template>
 
 <style scoped>
-.cor-tertiary {
-  background-color: rgba(248, 249, 250)
-}
-
 p {
   margin-bottom: 0.2rem;
 }
