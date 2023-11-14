@@ -54,8 +54,8 @@ Principais responsabilidades e não responsabilidades do sistema.
 | ✅     | NF03 | Impedimento de envio de formulário inválido | O formulário permite o envio apenas após ter seos campos validados                                       |
 | ✅     | NF04 | Programação Orientada a Objetos             | As informações são mapeadas para instãncias de objetos                                                   |
 | ✅     | NF05 | Disponibilização de App                     | Configuração de PWA                                                                                      |
-|       | NF06 | Uma Paleta de Cores                         | A interface possui uma paleta de cores bem definida                                                      |
-|       | NF07 | Uma logo                                    | A interface possui uma logomarca definida                                                                |
+| ✅     | NF06 | Uma Paleta de Cores                         | A interface possui uma paleta de cores bem definida                                                      |
+| ✅     | NF07 | Uma logo                                    | A interface possui uma logomarca definida                                                                |
 | ✅     | NF08 | Layout responsivo                           | a interface possui um layout responsivo bem desenhado                                                    |
 | ✅     | NF09 | apresentação da imagem do percurso          | O Percurso é representado por uma imagem no mapa embutido na interface do usuário                        |
 

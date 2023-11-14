@@ -2,7 +2,7 @@ const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
   viewportWidth: 1000,
-  viewportHeight: 1050,
+  viewportHeight: 800,
   video: true,
   videosFolder: 'cypress/videos',
   videoCompression: true,
